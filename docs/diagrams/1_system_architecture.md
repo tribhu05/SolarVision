@@ -49,7 +49,7 @@ graph TB
     end
 
     subgraph S7["7. Relational Persistence (database.py)"]
-        SQL[("SQLite Database: solarvision.db<br/>- observations<br/>- active_regions<br/>- tracking_history")]
+        SQL[("SQLite Database: solarvision.db<br/>- observations<br/>- active_regions<br/>- tracks<br/>- trajectory_points")]
     end
 
     subgraph S8["8. Scientific Evaluation Engine (evaluation.py)"]

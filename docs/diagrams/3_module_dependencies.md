@@ -8,23 +8,23 @@ graph TD
     CFG["config.py<br/>SolarVisionConfig, Paths, Thresholds"]
 
     subgraph Data_Layer["Data Ingestion & Persistence"]
-        DATA["solar_data.py<br/>SolarDataIngestor, SolarImageMetadata"]
-        DB["database.py<br/>SolarVisionDatabase, SQLite CRUD"]
+        DATA["solar_data.py<br/>SolarDataIngestor, ImageMetadata, IngestionResult"]
+        DB["database.py<br/>SolarDatabase, SQLite CRUD"]
     end
 
     subgraph CV_Core["Computer Vision Core"]
-        DISK["disk_detector.py<br/>SolarDiskDetector, SolarDiskBounds"]
-        LIMB["limb_darkening.py<br/>LimbDarkeningCompensator"]
-        PREP["preprocessor.py<br/>SolarPreprocessor, PreprocessingResult"]
+        DISK["disk_detector.py<br/>SolarDiskDetector, SolarDiskGeometry"]
+        LIMB["limb_darkening.py<br/>LimbDarkeningCorrector, LimbCorrectionResult"]
+        PREP["preprocessor.py<br/>SolarImagePreprocessor, PreprocessingResult"]
         SEG["segmentation.py<br/>SunspotSegmenter, SegmentationResult"]
-        DET["detector.py<br/>SunspotDetector, ActiveRegionROI"]
-        FEAT["feature_extractor.py<br/>CalibratedFeatureExtractor, CalibratedActiveRegion"]
-        CLASS["classifier.py<br/>ActiveRegionClassifier, ClassificationResult"]
-        TRACK["tracker.py<br/>ActiveRegionTracker, TrackedTrajectory"]
+        DET["detector.py<br/>SunspotDetector, DetectedRegion, DetectionOutput"]
+        FEAT["feature_extractor.py<br/>FeatureExtractor, CalibratedActiveRegion"]
+        CLASS["classifier.py<br/>McIntoshClassifier, ClassificationResult, DemonstrationRiskAssessment"]
+        TRACK["tracker.py<br/>ActiveRegionTracker, TrackHistory, TrackedObservation"]
     end
 
     subgraph Orchestration["Pipeline & Evaluation Engine"]
-        PIPE["pipeline.py<br/>SolarVisionPipeline, PipelineResult"]
+        PIPE["pipeline.py<br/>SolarVisionPipeline, PipelineResult, SequencePipelineResult"]
         EVAL["evaluation.py<br/>SolarVisionEvaluator, EvaluationScorecard"]
     end
 
@@ -86,17 +86,17 @@ graph TD
 ## Module Responsibilities and Interfaces
 | Module | Primary Class / Functions | Key Dependencies | Primary Output |
 | :--- | :--- | :--- | :--- |
-| `config.py` | `SolarVisionConfig`, `ConfigLoader` | PyYAML, dataclasses | Centralized configuration dictionary |
+| `config.py` | `SolarVisionConfig`, `load_config` | PyYAML, dataclasses | Centralized configuration dataclass |
 | `solar_data.py` | `SolarDataIngestor` | Requests, PIL, hashlib | Validated image arrays & metadata sidecars |
-| `disk_detector.py` | `SolarDiskDetector` | OpenCV, NumPy | Solar disk center $(x_c, y_c)$ and radius $R$ |
-| `limb_darkening.py`| `LimbDarkeningCompensator` | NumPy, SciPy | Flattened photometric continuum array |
-| `preprocessor.py` | `SolarPreprocessor` | OpenCV, NumPy | Denoised, CLAHE-enhanced contrast arrays |
+| `disk_detector.py` | `SolarDiskDetector` | OpenCV, NumPy | Solar disk geometry $(x_c, y_c, R, \text{mask})$ |
+| `limb_darkening.py`| `LimbDarkeningCorrector` | NumPy, SciPy | Flattened photometric continuum array |
+| `preprocessor.py` | `SolarImagePreprocessor` | OpenCV, NumPy | Denoised, CLAHE-enhanced contrast arrays |
 | `segmentation.py` | `SunspotSegmenter` | OpenCV, NumPy | Binary umbral and penumbral segmentations |
-| `detector.py` | `SunspotDetector` | OpenCV, NumPy | Bounding boxes, contours, and ROI patches |
-| `feature_extractor.py`| `CalibratedFeatureExtractor` | NumPy | Heliographic coordinates $(B, L)$ and area in MSH |
-| `classifier.py` | `ActiveRegionClassifier` | NumPy | Modified Zurich class and Demonstration Risk score |
+| `detector.py` | `SunspotDetector` | OpenCV, NumPy | Bounding boxes, contours, and detected regions |
+| `feature_extractor.py`| `FeatureExtractor` | NumPy | Heliographic coordinates $(B, L)$ and area in $\mu\text{Hem}$ |
+| `classifier.py` | `McIntoshClassifier` | NumPy | Modified Zurich class and Demonstration Risk score |
 | `tracker.py` | `ActiveRegionTracker` | SciPy, Pandas, Plotly | Multi-day kinematic trajectory linkage |
-| `database.py` | `SolarVisionDatabase` | SQLite3 | Relational tables with cascading foreign keys |
+| `database.py` | `SolarDatabase` | SQLite3 | Relational tables with cascading foreign keys |
 | `pipeline.py` | `SolarVisionPipeline` | All CV modules, Database | End-to-end processing & cached retrieval |
 | `evaluation.py` | `SolarVisionEvaluator` | Pipeline, NumPy, NOAA catalog | Quantitative precision, recall, IoU, and MAE |
 | `app.py` | Streamlit Dashboard | Streamlit, Plotly, Pipeline | 8-section interactive web dashboard |
