@@ -145,6 +145,18 @@ def get_system_components():
 config, db, ingestor, pipeline, evaluator = get_system_components()
 
 
+def get_catalog_df(database: SolarDatabase) -> pd.DataFrame:
+    """Safely fetch full SQLite catalog records as a pandas DataFrame."""
+    try:
+        if hasattr(database, "get_full_catalog_dataframe"):
+            return database.get_full_catalog_dataframe()
+        raw = database.get_full_catalog() if hasattr(database, "get_full_catalog") else []
+        return pd.DataFrame(raw) if raw else pd.DataFrame()
+    except Exception as err:
+        logging.getLogger("SolarVision.Dashboard").warning(f"Error loading catalog DataFrame: {err}")
+        return pd.DataFrame()
+
+
 # -----------------------------------------------------------------------------
 # Session State Initialization
 # -----------------------------------------------------------------------------
@@ -368,7 +380,7 @@ if nav_section == "🏠 Overview":
     """, unsafe_allow_html=True)
 
     # Top KPI Metrics Cards (safely handling empty database/DataFrame)
-    catalog_df = db.get_full_catalog_dataframe()
+    catalog_df = get_catalog_df(db)
     total_db_regions = len(catalog_df) if not catalog_df.empty else 0
     unique_tracks = int(catalog_df["tracking_id"].nunique()) if (not catalog_df.empty and "tracking_id" in catalog_df.columns) else 0
     max_area_val = float(catalog_df["area_uhem"].max()) if (not catalog_df.empty and "area_uhem" in catalog_df.columns and not catalog_df["area_uhem"].empty) else 0.0
@@ -921,7 +933,7 @@ elif nav_section == "📊 Historical Activity":
     st.markdown('<div class="main-title">📊 Historical Solar Activity & Database Catalog</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Persistent Relational SQLite Storage & Solar Cycle Spatial Distributions</div>', unsafe_allow_html=True)
 
-    catalog_df = db.get_full_catalog_dataframe()
+    catalog_df = get_catalog_df(db)
 
     if not catalog_df.empty:
         hk1, hk2, hk3, hk4 = st.columns(4)
