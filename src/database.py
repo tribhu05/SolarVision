@@ -691,6 +691,15 @@ class SolarDatabase:
             """)
             return [dict(row) for row in cursor.fetchall()]
 
+    def get_full_catalog_dataframe(self) -> Any:
+        """
+        Fetch all catalog records directly as a pandas DataFrame.
+        Safely returns an empty DataFrame if no records exist.
+        """
+        import pandas as pd
+        records = self.get_full_catalog()
+        return pd.DataFrame(records) if records else pd.DataFrame()
+
     # -------------------------------------------------------------------------
     # Deletion & Maintenance
     # -------------------------------------------------------------------------

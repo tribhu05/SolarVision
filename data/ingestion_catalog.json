@@ -70,5 +70,23 @@
     "image_height": 1024,
     "channels": 3,
     "is_authentic_real_data": true
+  },
+  "7bbddb5a1844345d68d9bcdd549e9b5c00078bf8717198f2029b9615cebc54e8": {
+    "filename": "sdo_hmi_1024_20260917_162400.jpg",
+    "filepath": "C:\\Users\\Tribh\\Documents\\antigravity\\charming-darwin\\data\\sample_images\\sdo_hmi_1024_20260917_162400.jpg",
+    "source_url": "https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIIC.jpg",
+    "source_type": "NASA_SDO_HMI_CONTINUUM",
+    "observatory": "NASA Solar Dynamics Observatory (SDO)",
+    "instrument": "Helioseismic and Magnetic Imager (HMI)",
+    "wavelength_channel": "Fe I 6173 \u00c5 (Visible Continuum)",
+    "download_timestamp_utc": "2026-09-17T16:24:00.486826Z",
+    "source_last_modified": "Thu, 17 Sep 2026 16:10:12 GMT",
+    "etag": "\"2fc70-65bb004c569a9\"",
+    "sha256": "7bbddb5a1844345d68d9bcdd549e9b5c00078bf8717198f2029b9615cebc54e8",
+    "file_size_bytes": 195696,
+    "image_width": 1024,
+    "image_height": 1024,
+    "channels": 3,
+    "is_authentic_real_data": true
   }
 }

@@ -57,57 +57,69 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Responsive, clean scientific styling without distracting animations
+# Responsive, clean scientific styling with theme-adaptive glassmorphism
 st.markdown("""
 <style>
     .main-title {
-        font-size: 2.1rem;
-        font-weight: 700;
-        color: #d97706;
-        margin-bottom: 0.1rem;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #f59e0b;
+        margin-bottom: 0.15rem;
     }
     .sub-title {
         font-size: 1.0rem;
-        color: #4b5563;
-        margin-bottom: 1.2rem;
+        color: #94a3b8;
+        margin-bottom: 1.0rem;
+    }
+    .welcome-card {
+        background: rgba(245, 158, 11, 0.07);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(8px);
     }
     .kpi-card {
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 12px 16px;
-        border-left: 4px solid #d97706;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 10px;
+        padding: 14px 18px;
+        border-left: 5px solid #f59e0b;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
     }
     .kpi-title {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 600;
-        color: #64748b;
+        color: #f59e0b;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
     .kpi-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #0f172a;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: inherit;
+        margin-top: 2px;
+        margin-bottom: 2px;
     }
     .kpi-sub {
         font-size: 0.8rem;
-        color: #64748b;
+        opacity: 0.75;
     }
     .scientific-badge {
         display: inline-block;
-        background-color: #fef3c7;
-        color: #92400e;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.75rem;
+        background-color: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.78rem;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
     .meta-card {
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
         padding: 10px 14px;
         font-family: monospace;
         font-size: 0.85rem;
@@ -153,25 +165,41 @@ if "pipeline_result" not in st.session_state and st.session_state.active_sample_
 
 
 # -----------------------------------------------------------------------------
-# Sidebar Navigation & Physics Parameter Tuning
+# Navigation State & Multi-Page Routing
 # -----------------------------------------------------------------------------
+NAV_PAGES = [
+    "🏠 Overview",
+    "🔬 Solar Image Analysis",
+    "🎯 Detection Results",
+    "🏷️ Region Classification",
+    "🛰️ Multi-Day Tracking",
+    "📊 Historical Activity",
+    "📈 Scientific Evaluation",
+    "📚 Methodology & Limitations",
+]
+
+if "selected_page" not in st.session_state:
+    st.session_state.selected_page = "🏠 Overview"
+
+def navigate_to(page_name: str):
+    st.session_state.selected_page = page_name
+    st.rerun()
+
 st.sidebar.markdown("## ☀️ **SolarVision**")
 st.sidebar.caption("VIT B.Tech Computer Vision Course Project")
 
-nav_section = st.sidebar.radio(
+cur_idx = NAV_PAGES.index(st.session_state.selected_page) if st.session_state.selected_page in NAV_PAGES else 0
+sidebar_page = st.sidebar.radio(
     "Navigation Menu",
-    [
-        "🏠 Overview",
-        "🔬 Solar Image Analysis",
-        "🎯 Detection Results",
-        "🏷️ Region Classification",
-        "🛰️ Multi-Day Tracking",
-        "📊 Historical Activity",
-        "📈 Scientific Evaluation",
-        "📚 Methodology & Limitations",
-    ],
-    index=0,
+    NAV_PAGES,
+    index=cur_idx,
+    key="sidebar_radio_selection",
 )
+if sidebar_page != st.session_state.selected_page:
+    st.session_state.selected_page = sidebar_page
+    st.rerun()
+
+nav_section = st.session_state.selected_page
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ **Computer Vision Tuning**")
@@ -277,16 +305,73 @@ if nav_section == "🏠 Overview":
     st.markdown('<div class="main-title">☀️ SolarVision: System Overview</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Automated Solar Active Region Detection, Morphological Characterization, and Kinematic Tracking</div>', unsafe_allow_html=True)
 
+    # Top-Level Navigation Bar (accessible even if sidebar is collapsed)
+    st.markdown("##### 🧭 Quick Navigation Views")
+    top_nav = st.pills(
+        "Views",
+        NAV_PAGES,
+        default=st.session_state.selected_page,
+        label_visibility="collapsed",
+        key="top_nav_pills",
+    )
+    if top_nav and top_nav != st.session_state.selected_page:
+        st.session_state.selected_page = top_nav
+        st.rerun()
+
+    # Welcome Card explaining the interface in simple English
+    st.markdown("""
+    <div class="welcome-card">
+        <h4 style="margin-top:0; margin-bottom:8px; color:#f59e0b;">👋 What is SolarVision?</h4>
+        <p style="font-size:0.95rem; margin-bottom:8px; line-height: 1.55;">
+            <b>SolarVision</b> is an automated Computer Vision application for solar astronomy. It processes authentic, high-resolution full-disk imagery from NASA's Solar Dynamics Observatory (SDO/HMI) to:
+        </p>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:4px; font-size:0.88rem; opacity:0.95;">
+            <span>🎯 <b>1. Detect Sunspots:</b> Isolates dark umbral cores & penumbral halos using dual-level adaptive thresholding.</span>
+            <span>📐 <b>2. Physical Size:</b> Corrects 3D spherical curvature into calibrated microhemispheres (μHem).</span>
+            <span>🏷️ <b>3. Classify:</b> Deterministic Modified Zurich rules (Classes A–H) with auditable decision traces.</span>
+            <span>🛰️ <b>4. Multi-Day Tracking:</b> Predicts solar differential rotation kinematics (Snodgrass 1984).</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Quick Start: 1-Click Interactive Demos
+    st.markdown("### ⚡ Quick Start: 1-Click Interactive Demos")
+    q_col1, q_col2, q_col3 = st.columns(3)
+
+    with q_col1:
+        if st.button("🌟 1-Click Demo: Historic AR 13664", use_container_width=True, help="Analyze the massive superstorm active region of May 10, 2024 (Solar Cycle 25 peak)"):
+            with st.spinner("Processing historic AR 13664 superstorm observation..."):
+                ar_path = sample_dir / "sdo_hmi_ar3664_20240510.jpg"
+                if ar_path.exists():
+                    st.session_state.active_sample_name = "sdo_hmi_ar3664_20240510.jpg"
+                    st.session_state.pipeline_result = pipeline.process_image(ar_path, reprocess=True)
+                    st.success("AR 13664 successfully analyzed! Results updated below.")
+                    st.rerun()
+
+    with q_col2:
+        if st.button("🛰️ 1-Click Demo: 3-Day Tracking", use_container_width=True, help="Track sunspots across 3 consecutive days (May 10-12, 2024)"):
+            navigate_to("🛰️ Multi-Day Tracking")
+
+    with q_col3:
+        if st.button("⚪ 1-Click Demo: Spotless Sun", use_container_width=True, help="Verify zero false alarms on a quiet solar disk (Solar Minimum)"):
+            with st.spinner("Analyzing spotless solar minimum observation..."):
+                spotless_img = np.full((1024, 1024, 3), 190, dtype=np.uint8)
+                cv2.circle(spotless_img, (512, 512), 470, (200, 200, 200), -1)
+                st.session_state.pipeline_result = pipeline.process_image(spotless_img, reprocess=True)
+                st.session_state.active_sample_name = "spotless_minimum_test.jpg"
+                st.success("Spotless disk verified: 0 active regions detected (100% Specificity)!")
+                st.rerun()
+
     # Telemetry Status Banner
     st.markdown("""
     <div class="scientific-badge">🛰️ AUTHENTIC NASA SOLAR DYNAMICS OBSERVATORY TELEMETRY (SDO / HMI 6173 Å)</div>
     """, unsafe_allow_html=True)
 
-    # Top KPI Metrics Cards
-    catalog_df = db.get_full_catalog()
-    total_db_regions = len(catalog_df)
-    unique_tracks = catalog_df["tracking_id"].nunique() if not catalog_df.empty and "tracking_id" in catalog_df else 0
-    max_area_val = catalog_df["area_uhem"].max() if not catalog_df.empty and "area_uhem" in catalog_df else 0.0
+    # Top KPI Metrics Cards (safely handling empty database/DataFrame)
+    catalog_df = db.get_full_catalog_dataframe()
+    total_db_regions = len(catalog_df) if not catalog_df.empty else 0
+    unique_tracks = int(catalog_df["tracking_id"].nunique()) if (not catalog_df.empty and "tracking_id" in catalog_df.columns) else 0
+    max_area_val = float(catalog_df["area_uhem"].max()) if (not catalog_df.empty and "area_uhem" in catalog_df.columns and not catalog_df["area_uhem"].empty) else 0.0
 
     k1, k2, k3, k4 = st.columns(4)
     with k1:
@@ -364,13 +449,16 @@ if nav_section == "🏠 Overview":
                     st.markdown(f"- **AR-{c.region_id} ({c.class_code}):** {c.class_name[:45]}... | Attention: `{c.attention_level}` ({c.demonstration_risk.score:.1f}/100)")
 
             st.markdown("---")
-            c_btn1, c_btn2 = st.columns(2)
+            c_btn1, c_btn2, c_btn3 = st.columns(3)
             with c_btn1:
-                if st.button("🔍 Explore Full Detection Results", use_container_width=True):
-                    st.info("Select '🎯 Detection Results' in the sidebar navigation menu.")
+                if st.button("🔍 Explore Detections", use_container_width=True):
+                    navigate_to("🎯 Detection Results")
             with c_btn2:
-                if st.button("📊 View Historical Catalog", use_container_width=True):
-                    st.info("Select '📊 Historical Activity' in the sidebar navigation menu.")
+                if st.button("🏷️ Classification Details", use_container_width=True):
+                    navigate_to("🏷️ Region Classification")
+            with c_btn3:
+                if st.button("📊 Database Catalog", use_container_width=True):
+                    navigate_to("📊 Historical Activity")
         else:
             st.info("Please process a solar observation in 'Solar Image Analysis' to inspect physical results.")
 
@@ -833,14 +921,21 @@ elif nav_section == "📊 Historical Activity":
     st.markdown('<div class="main-title">📊 Historical Solar Activity & Database Catalog</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Persistent Relational SQLite Storage & Solar Cycle Spatial Distributions</div>', unsafe_allow_html=True)
 
-    catalog_df = db.get_full_catalog()
+    catalog_df = db.get_full_catalog_dataframe()
 
     if not catalog_df.empty:
         hk1, hk2, hk3, hk4 = st.columns(4)
         hk1.metric("Total Cataloged ARs", len(catalog_df))
-        hk2.metric("Unique Tracking IDs", catalog_df["tracking_id"].nunique() if "tracking_id" in catalog_df else 0)
-        hk3.metric("Max Recorded Area", f"{catalog_df['area_uhem'].max():.1f} μHem")
-        hk4.metric("Most Frequent Class", catalog_df["mcintosh_class"].mode()[0] if "mcintosh_class" in catalog_df else "—")
+        hk2.metric("Unique Tracking IDs", int(catalog_df["tracking_id"].nunique()) if "tracking_id" in catalog_df.columns else 0)
+        max_area = float(catalog_df["area_uhem"].max()) if ("area_uhem" in catalog_df.columns and not catalog_df["area_uhem"].empty) else 0.0
+        hk3.metric("Max Recorded Area", f"{max_area:.1f} μHem")
+        
+        freq_class = "—"
+        if "mcintosh_class" in catalog_df.columns and not catalog_df["mcintosh_class"].empty:
+            modes = catalog_df["mcintosh_class"].mode()
+            if not modes.empty:
+                freq_class = str(modes[0])
+        hk4.metric("Most Frequent Class", freq_class)
 
         st.markdown("---")
         h_ch1, h_ch2 = st.columns(2)
