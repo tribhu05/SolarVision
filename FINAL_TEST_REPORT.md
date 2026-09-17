@@ -3,17 +3,17 @@
 **Execution Date**: September 17, 2026  
 **Environment**: Windows 11 / Python 3.14.0 / Pytest 9.1.1  
 **Target Application**: SolarVision Automated Solar Active Region Detection System  
-**Status**: **ALL 15 DIMENSIONS VERIFIED — 75 / 75 AUTOMATED TESTS PASSING**
+**Status**: **ALL 15 DIMENSIONS VERIFIED — 90 / 90 AUTOMATED TESTS PASSING**
 
 ---
 
 ## 1. Executive Test Summary
-SolarVision has undergone comprehensive end-to-end integration testing spanning low-level photometric routines, mathematical coordinate transformations, SQLite relational persistence, kinematic tracking models, scientific evaluation engines, and interactive dashboard rendering.
+SolarVision has undergone comprehensive end-to-end integration testing spanning low-level photometric routines, mathematical coordinate transformations, SQLite relational persistence, kinematic tracking models, scientific evaluation engines, and interactive dashboard rendering. A dedicated 15-test integration suite (`tests/test_integration_e2e.py`) exercises all 15 operational requirements end-to-end.
 
 ```
-============================= 75 passed in 8.94s ==============================
-Total Tests Run: 75
-Passing: 75 (100%)
+============================= 90 passed in 12.35s =============================
+Total Tests Run: 90
+Passing: 90 (100%)
 Failing: 0 (0%)
 Skipped: 0 (0%)
 ```
@@ -24,21 +24,21 @@ Skipped: 0 (0%)
 
 | # | Dimension | Scope Tested | Test Files / Scripts | Status | Evidence |
 | :-: | :--- | :--- | :--- | :-: | :--- |
-| **1** | **Project Installation** | Package installation, dependency graph, OpenCV, PyYAML, Plotly | `requirements.txt`, clean env check | **PASS** | `opencv-python`, `numpy`, `scipy`, `streamlit`, `plotly` resolve cleanly |
-| **2** | **Application Startup** | AST compilation, headless Streamlit execution, port binding | `scripts/verify_dashboard.py`, `app.py` | **PASS** | Headless launch on port 8501 without runtime exceptions |
-| **3** | **Image Loading** | Local file paths, byte payloads, NumPy arrays, channel conversion | `tests/test_solar_data.py`, `tests/test_preprocessor.py` | **PASS** | 8-bit & 16-bit support, RGB/BGR to grayscale conversion verified |
-| **4** | **Data Ingestion** | HTTP retrieval, SSL timeout, SHA-256 deduplication, JSON catalog | `tests/test_solar_data.py` | **PASS** | Cache hit on identical payload; network fallback gracefully caught |
-| **5** | **Image Preprocessing** | Disk isolation, quadratic limb darkening ($u=0.56, v=0.20$), CLAHE, Black-Hat | `tests/test_disk_detector.py`, `tests/test_limb_darkening.py`, `tests/test_preprocessor.py` | **PASS** | Solar disk isolated ($\kappa = 0.985$); quiet-Sun background flattened |
-| **6** | **Sunspot Detection** | Dual-level thresholding, contour extraction, area gating | `tests/test_segmentation.py`, `tests/test_detector.py` | **PASS** | Umbral cores separated from penumbral filaments; noise rejected |
-| **7** | **Feature Extraction** | Stonyhurst projection $(B, L)$, area foreshortening (MSH), circularity | `tests/test_detector.py`, `tests/test_evaluation.py` | **PASS** | Formula verified against known synthetic and SDO benchmarks |
-| **8** | **Classification** | Modified Zurich / McIntosh rules (Classes A through H) | `tests/test_classifier.py` | **PASS** | Correct class assignment for pores, unipolar, and extended bipoles |
-| **9** | **Risk Scoring** | Composite 0–100 educational complexity score & factors | `tests/test_classifier.py` | **PASS** | Factor weights sum to 1.0; educational disclaimer present |
-| **10** | **Database Storage** | SQLite transactions, foreign keys, cascade deletes, catalog queries | `tests/test_database.py` | **PASS** | 5 tables verified; zero orphaned rows on observation deletion |
-| **11** | **Multi-Day Tracking** | Snodgrass differential rotation propagation, bipartite gating | `tests/test_tracker.py` | **PASS** | May 10–12 sequence tracks AR 13664 over 3 days (residual $< 1.8^\circ$) |
-| **12** | **Dashboard Visualization** | 8 navigation pages, responsive layout, sidebar controls | `app.py`, `scripts/verify_dashboard.py` | **PASS** | All 8 navigation sections present and verified via AST |
-| **13** | **Historical Charts** | Plotly time-series rendering, area growth, drift trajectories | `tests/test_tracker.py` | **PASS** | Figures serialize to JSON without plotly validation errors |
-| **14** | **Error Handling** | Missing files, corrupted byte streams, non-solar image inputs | `tests/test_solar_data.py`, `tests/test_pipeline.py` | **PASS** | Informative `ValueError` and `FileNotFoundError` without crashes |
-| **15** | **Empty & Invalid Cases** | Spotless solar minimum discs, all-zero arrays, tiny noise spots | `tests/test_detector.py`, `tests/test_evaluation.py` | **PASS** | Zero detections on spotless disks; 100% specificity |
+| **1** | **Project Installation** | Package installation, dependency graph, OpenCV, PyYAML, Plotly | `tests/test_integration_e2e.py::test_01_project_installation` | **PASS** | `opencv-python`, `numpy`, `scipy`, `streamlit`, `plotly` resolve cleanly |
+| **2** | **Application Startup** | AST compilation, headless Streamlit execution, port binding | `tests/test_integration_e2e.py::test_02_application_startup`, `scripts/verify_dashboard.py` | **PASS** | Headless launch on port 8501 without runtime exceptions; all 8 sections verified |
+| **3** | **Image Loading** | Local file paths, byte payloads, NumPy arrays, channel conversion | `tests/test_integration_e2e.py::test_03_image_loading`, `tests/test_solar_data.py` | **PASS** | 8-bit & 16-bit support, RGB/BGR to grayscale conversion verified |
+| **4** | **Data Ingestion** | HTTP retrieval, SSL timeout, SHA-256 deduplication, JSON catalog | `tests/test_integration_e2e.py::test_04_data_ingestion`, `tests/test_solar_data.py` | **PASS** | Cache hit on identical payload; network fallback gracefully caught |
+| **5** | **Image Preprocessing** | Disk isolation, quadratic limb darkening ($u=0.56, v=0.20$), CLAHE, Black-Hat | `tests/test_integration_e2e.py::test_05_image_preprocessing`, `tests/test_preprocessor.py` | **PASS** | Solar disk isolated ($\kappa = 0.985$); quiet-Sun background flattened |
+| **6** | **Sunspot Detection** | Dual-level thresholding, contour extraction, area gating | `tests/test_integration_e2e.py::test_06_sunspot_detection`, `tests/test_segmentation.py` | **PASS** | Umbral cores separated from penumbral filaments; noise rejected |
+| **7** | **Feature Extraction** | Stonyhurst projection $(B, L)$, area foreshortening (MSH), circularity | `tests/test_integration_e2e.py::test_07_feature_extraction`, `tests/test_detector.py` | **PASS** | Formula verified against known synthetic and SDO benchmarks |
+| **8** | **Classification** | Modified Zurich / McIntosh rules (Classes A through H) | `tests/test_integration_e2e.py::test_08_classification`, `tests/test_classifier.py` | **PASS** | Correct class assignment for pores, unipolar, and extended bipoles |
+| **9** | **Risk Scoring** | Composite 0–100 educational complexity score & factors | `tests/test_integration_e2e.py::test_09_risk_scoring`, `tests/test_classifier.py` | **PASS** | Factor weights sum to 1.0; educational non-prediction disclaimer present |
+| **10** | **Database Storage** | SQLite transactions, foreign keys, cascade deletes, catalog queries | `tests/test_integration_e2e.py::test_10_database_storage`, `tests/test_database.py` | **PASS** | 5 tables verified; zero orphaned rows on observation deletion |
+| **11** | **Multi-Day Tracking** | Snodgrass differential rotation propagation, bipartite gating | `tests/test_integration_e2e.py::test_11_multi_day_tracking`, `tests/test_tracker.py` | **PASS** | May 10–12 sequence tracks AR 13664 over 3 days (residual $< 1.8^\circ$) |
+| **12** | **Dashboard Visualization** | 8 navigation pages, responsive layout, sidebar controls | `tests/test_integration_e2e.py::test_12_dashboard_visualization`, `app.py` | **PASS** | All 8 navigation sections present and verified via AST and serialization |
+| **13** | **Historical Charts** | Plotly time-series rendering, area growth, drift trajectories | `tests/test_integration_e2e.py::test_13_historical_charts`, `tests/test_tracker.py` | **PASS** | Figures serialize to JSON without plotly validation errors |
+| **14** | **Error Handling** | Missing files, corrupted byte streams, non-solar image inputs | `tests/test_integration_e2e.py::test_14_error_handling`, `tests/test_pipeline.py` | **PASS** | Informative `ValueError` and `FileNotFoundError` without crashes |
+| **15** | **Empty & Invalid Cases** | Spotless solar minimum discs, all-zero arrays, tiny noise spots | `tests/test_integration_e2e.py::test_15_empty_and_invalid_inputs`, `tests/test_detector.py` | **PASS** | Zero detections on spotless disks; 100% specificity |
 
 ---
 
