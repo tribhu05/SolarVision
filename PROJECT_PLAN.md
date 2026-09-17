@@ -29,6 +29,7 @@
 - [x] **Multi-Frame Kinematic Tracker**: Implement differential rotation prediction using Snodgrass (1984) relation.
 - [x] **Sunspot Detection & Morphological Feature Extraction**: Implement `SunspotDetector` calculating Area ($A_{\text{px}}$ and $A_{\mu\text{Hem}}$), Perimeter, Bounding Box, Centroid, Circularity ($4\pi A/P^2$), and Contrast.
 - [x] **Demonstration Risk Scoring**: Implemented 5-factor educational complexity index with neutral attention labels and explicit non-prediction disclaimers.
+- [x] **Unified Processing & Storage Pipeline**: Implemented `SolarVisionPipeline` with automatic SQLite schema migration, SHA-256 content deduplication, multi-day historical batch execution, and transaction integrity.
 - [x] **Extended Validation**: Tested on real NASA SDO/HMI images from the historic May 2024 solar storms (AR3664 sequence).
 - [x] **Edge Case Handling**: Validated behavior when Sun has zero sunspots (solar minimum) without exceptions or false positives.
 

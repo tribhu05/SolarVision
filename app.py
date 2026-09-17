@@ -29,6 +29,7 @@ from src.tracker import ActiveRegionTracker, TrackedObservation, TrackHistory, T
 from src.solar_data import SolarDataIngestor, ImageMetadata, IngestionResult
 from src.preprocessor import SolarImagePreprocessor, PreprocessingResult
 from src.detector import SunspotDetector, DetectionOutput, DetectedRegion
+from src.pipeline import SolarVisionPipeline, PipelineResult
 
 # Page setup
 st.set_page_config(
@@ -531,6 +532,7 @@ if nav_choice == "🔬 Single-Image Active Region Detector":
                     )
                 with col_save:
                     if st.button("💾 Save Observation to Solar Catalog Database", use_container_width=True):
+                        img_id = db.save_image_metadata(current_metadata) if current_metadata else None
                         obs_id = db.save_observation(
                             filename=image_label,
                             timestamp=datetime.utcnow(),
@@ -540,6 +542,9 @@ if nav_choice == "🔬 Single-Image Active Region Detector":
                             quiet_sun_intensity=limb.quiet_sun_intensity,
                             regions=regions,
                             classifications=classes,
+                            image_id=img_id,
+                            disk_confidence=disk.confidence,
+                            is_spotless=det_output.is_spotless,
                         )
                         st.success(f"Successfully recorded observation #{obs_id} with {len(regions)} active regions into SQLite database.")
             else:

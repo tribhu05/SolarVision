@@ -55,10 +55,17 @@ Developed for the **VIT B.Tech Computer Vision Course**.
      $$\omega(B) = 14.713 - 2.396\sin^2(B) - 1.787\sin^4(B) \quad [\text{deg/day}]$$
    - Predicts region displacement across days to maintain persistent tracking IDs (e.g. `AR-101`).
 
-6. **Production SQLite Persistence & Analytics**:
-   - Relational database storing observations and active region metrics.
-   - Interactive Plotly analytics: Solar Butterfly latitudinal distribution, size histograms, and McIntosh breakdown.
-   - Direct CSV catalog export.
+6. **Production Relational SQLite Persistence & Pipeline Orchestration**:
+   - **Unified Pipeline Orchestrator (`SolarVisionPipeline`)**: Seamlessly connects ingestion, preprocessing, disk localization, flat-fielding, dual-threshold segmentation, feature extraction, McIntosh classification, multi-day tracking, and database storage.
+   - **Content-Addressable SHA-256 Deduplication**: Hashes every image byte stream to skip redundant computation on previously processed frames (`is_cached: True`).
+   - **Five Relational SQLite Tables**:
+     - `image_metadata`: Provenance, observatory, instrument, SHA-256, HTTP headers, and authenticity flag.
+     - `observations`: Disk geometry $(x_c, y_c, R_\odot)$, quiet-Sun intensity $I_{\text{QS}}$, active region count, and spotless disk flags.
+     - `active_regions`: Pixel & $\mu\text{Hem}$ areas, Stonyhurst coordinates $(B, L)$, McIntosh classification, rule traces, and 5-factor risk score breakdown.
+     - `tracks`: Multi-day active region lifecycles, observation counts, growth rates ($\mu\text{Hem}/\text{day}$), and net drift.
+     - `trajectory_points`: Kinematic projection residuals, predicted vs. actual coordinates, and lifecycle events.
+   - **Automatic Schema Migration**: Transparently detects and upgrades legacy database schemas without data loss.
+   - **Interactive Plotly Analytics**: Solar Butterfly latitudinal distribution, size histograms, McIntosh taxonomy breakdown, and direct CSV catalog export.
 
 7. **Live NASA SDO Telemetry Ingestion**:
    - One-click live fetch of full-disk visible continuum images directly from NASA's Solar Dynamics Observatory (SDO/HMI 6173 Å).
@@ -97,14 +104,15 @@ charming-darwin/
 │   ├── config.py                 # Dataclass configuration loader
 │   ├── preprocessor.py           # Classical CV preprocessing & noise reduction
 │   ├── detector.py               # Sunspot detection, morphological features & ROI patches
-│   ├── database.py               # SQLite ORM & query interface
 │   ├── disk_detector.py          # Solar disk boundary & radius localization
 │   ├── limb_darkening.py         # Photospheric flat-fielding & limb correction
 │   ├── segmentation.py           # Umbra/penumbra dual thresholding & AR clustering
 │   ├── feature_extractor.py      # Heliographic coordinates & area calibration (μHem)
 │   ├── classifier.py             # Transparent McIntosh/Zurich rule engine
 │   ├── tracker.py                # Multi-frame tracking with differential rotation
-│   └── solar_data.py             # NASA SDO image fetcher & benchmark generator
+│   ├── solar_data.py             # NASA SDO image fetcher & benchmark generator
+│   ├── database.py               # Relational SQLite ORM, schema migration & analytics
+│   └── pipeline.py               # Unified end-to-end CV and storage pipeline
 ├── tests/
 │   ├── __init__.py
 │   ├── test_preprocessor.py      # Preprocessing & noise reduction tests
@@ -114,7 +122,11 @@ charming-darwin/
 │   ├── test_segmentation.py      # Umbra/penumbra extraction tests
 │   ├── test_solar_data.py        # Data ingestion & deduplication tests
 │   ├── test_classifier.py        # McIntosh classification tests
-│   └── test_tracker.py           # Differential rotation & multi-day tracking tests
+│   ├── test_tracker.py           # Differential rotation & multi-day tracking tests
+│   ├── test_database.py          # Relational SQLite schema & query tests
+│   └── test_pipeline.py          # End-to-end pipeline & idempotency tests
+├── scripts/
+│   └── verify_storage_pipeline.py # End-to-end verification and database inspection script
 ├── app.py                        # Streamlit dashboard application
 ├── requirements.txt              # Dependency specifications
 ├── README.md                     # Project documentation
