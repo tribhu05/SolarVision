@@ -471,7 +471,7 @@ class SolarDatabase:
         """Fetch all recorded observation sessions ordered chronologically."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM observations ORDER BY timestamp DESC")
+            cursor.execute("SELECT * FROM observations ORDER BY timestamp DESC, id DESC")
             return [dict(row) for row in cursor.fetchall()]
 
     def get_observation_by_id(self, obs_id: int) -> Optional[Dict[str, Any]]:
@@ -486,7 +486,7 @@ class SolarDatabase:
         """Fetch observation record associated with a given image metadata ID."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM observations WHERE image_id = ? ORDER BY timestamp DESC LIMIT 1", (image_id,))
+            cursor.execute("SELECT * FROM observations WHERE image_id = ? ORDER BY timestamp DESC, id DESC LIMIT 1", (image_id,))
             row = cursor.fetchone()
             return dict(row) if row else None
 
