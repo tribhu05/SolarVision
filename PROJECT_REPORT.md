@@ -206,7 +206,7 @@ The pipeline is quantitatively benchmarked against official NOAA SWPC Solar Regi
    - Tested against spotless disk condition: $0$ false alarms, $100\%$ specificity.
 
 ### 15.2 Automated Pytest Suite
-- **75 comprehensive tests passing** across 10 test modules (`pytest tests/ -v` passes in $\sim 8.9\text{ s}$).
+- **90 comprehensive tests passing** across 11 test modules (`pytest tests/ -v` passes in $\sim 12.35\text{ s}$), including an end-to-end 15-dimension verification suite (`tests/test_integration_e2e.py`).
 
 ---
 
