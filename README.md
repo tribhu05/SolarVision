@@ -3,17 +3,18 @@
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-orange.svg)](https://streamlit.io)
 [![OpenCV](https://img.shields.io/badge/CV-OpenCV-green.svg)](https://opencv.org)
-[![Tests](https://img.shields.io/badge/Tests-75%20Passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-90%20Passing-brightgreen.svg)](tests/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 An end-to-end, scientifically grounded Computer Vision pipeline and interactive analytics dashboard for detecting, segmenting, characterizing, classifying, and tracking solar active regions (sunspots) on full-disk solar continuum imagery (SDO/HMI and SOHO/MDI).
 
-Developed for the **VIT B.Tech Computer Vision Course**.
+Developed for the **VIT B.Tech Computer Vision Course Project**.
 
 ---
 
 ## 📑 Academic Documentation & Submission Suite
-- 📄 [**Complete Project Report (`PROJECT_REPORT.md`)**](PROJECT_REPORT.md): Full 21-section academic report for VIT final submission.
+- 📌 [**Mandatory Project Statement (`statement.md`)**](statement.md): Official VIT submission statement (Problem Statement, Scope, Target Users, High-Level Features).
+- 📄 [**Complete Project Report (`PROJECT_REPORT.md`)**](PROJECT_REPORT.md): Full 15-section academic report matching VIT portal submission requirements.
 - 🏛️ [**System Architecture (`ARCHITECTURE.md`)**](ARCHITECTURE.md): Multi-layer system design, module interactions, and database schema.
 - 📐 [**Mathematical Methodology (`METHODOLOGY.md`)**](METHODOLOGY.md): Comprehensive mathematical and physical derivations (radiative transfer, Stonyhurst projection, Snodgrass kinematics).
 - ⚠️ [**Scientific Scope & Limitations (`LIMITATIONS.md`)**](LIMITATIONS.md): Algorithmic boundaries, foreshortening effects, and space weather non-prediction disclaimer.
@@ -21,7 +22,7 @@ Developed for the **VIT B.Tech Computer Vision Course**.
 - 🎯 [**Academic Demo & Viva Guide (`DEMO_GUIDE.md`)**](DEMO_GUIDE.md): 5-minute presentation script and oral examination question bank.
 - 📋 [**Submission Checklist (`FINAL_SUBMISSION_CHECKLIST.md`)**](FINAL_SUBMISSION_CHECKLIST.md): VIT submission verification matrix.
 - 🚦 [**Senior Engineering Status (`PROJECT_STATUS.md`)**](PROJECT_STATUS.md): Engineering review and production readiness certificate.
-- 🗺️ [**System Diagrams Index (`docs/diagrams/`)**](docs/diagrams/README.md): 5 Mermaid architecture and workflow diagrams.
+- 🗺️ [**System Diagrams Index (`docs/diagrams/`)**](docs/diagrams/README.md): 8 Mermaid architecture, workflow, and formal UML diagrams (Use Case, Sequence, Class/Component, ER).
 
 ---
 
@@ -143,9 +144,39 @@ charming-darwin/
 │   └── verify_storage_pipeline.py # End-to-end verification and database inspection script
 ├── app.py                        # Streamlit dashboard application
 ├── requirements.txt              # Dependency specifications
+├── statement.md                  # Problem statement, scope & target users
 ├── README.md                     # Project documentation
 └── PROJECT_PLAN.md               # 3-day course roadmap & evaluation rubric
 ```
+
+---
+
+## 🛠️ Technologies & Tools Used
+
+| Category | Technology / Library | Version / Specification | Purpose in SolarVision |
+| :--- | :--- | :--- | :--- |
+| **Language** | **Python** | `3.10+` (Verified on `3.14.0`) | Primary implementation language for computer vision, mathematical models, and UI. |
+| **Computer Vision** | **OpenCV** (`opencv-python-headless`) | `4.11.0.86` | Otsu binarization, Canny edge detection, minimum enclosing circle, morphological filters (open, close, black-hat), bilateral filtering, CLAHE, contour hierarchy parsing. |
+| **Numerical Computing** | **NumPy** & **SciPy** | `1.26.4` / `1.14.1` | Vectorized radiative transfer matrix calculation, spherical coordinate transformations, trigonometric projection, array manipulation. |
+| **User Interface** | **Streamlit** | `1.42.0` | 8-page responsive scientific dashboard, session state synchronization, dynamic sidebar controls, interactive image uploads. |
+| **Data Visualization** | **Plotly** | `5.24.1` | Interactive Stonyhurst heliographic disk projections, butterfly latitudinal time-series charts, area histograms, risk gauge meters. |
+| **Data Manipulation** | **Pandas** | `2.2.3` | Active region catalogs, track trajectory aggregation, NOAA benchmark comparison tables, CSV export serialization. |
+| **Relational Storage** | **SQLite3** | `3.45+` (Built-in) | ACID-compliant persistence across 5 relational tables (`image_metadata`, `observations`, `active_regions`, `tracks`, `trajectory_points`). |
+| **Configuration** | **PyYAML** | `6.0.2` | Centralized physical constants, limb darkening coefficients ($u, v$), and detection thresholds (`config/config.yaml`). |
+| **Testing & QA** | **PyTest**, `pytest-cov`, `pytest-asyncio` | `9.1.1` | Automated testing suite comprising 90 tests with 100% pass rate across 12 test modules. |
+| **Scientific Data** | **NASA SDO/HMI & NOAA SWPC** | `Fe I 6173 Å` | Authentic spacecraft continuum telemetry feeds and official ground-truth Solar Region Summaries. |
+
+---
+
+## 📸 Screenshots & Visual Diagnostic Panels
+
+### 1. Dual-Threshold Detection & Morphological Annotation
+![SolarVision Active Region Detections](data/detection_outputs/detected_sdo_hmi_ar3664_20240510.jpg)
+*Figure 1: Full-disk detection on historic NASA SDO/HMI frame (May 10, 2024). Cyan circles indicate localized disk boundary; green bounding boxes mark individual sunspots; magenta dashed hulls delineate clustered active regions (e.g. Super Active Region NOAA AR 13664 classified as Zurich Class F).*
+
+### 2. Multi-Stage Computer Vision Diagnostic Pipeline
+![Preprocessing Diagnostic Stages](data/preprocessing_visuals/preprocessing_sdo_hmi_ar3664_20240510.jpg)
+*Figure 2: 6-panel computer vision diagnostic progression: (1) Raw SDO/HMI Input, (2) Solar Disk Masking, (3) Photometric Limb Darkening Compensation, (4) Bilateral Edge-Preserving Denoising, (5) CLAHE Local Contrast Enhancement, and (6) Black-Hat Morphological Dark Feature Isolation.*
 
 ---
 
@@ -172,7 +203,7 @@ Open your browser at `http://localhost:8501`.
 ```bash
 pytest tests/ -v
 ```
-All 75 tests across 10 modules pass in ~8.9 seconds.
+All 90 tests across 12 test modules pass in ~15.4 seconds with zero failures.
 
 ### 5. Headless Verification
 ```bash
