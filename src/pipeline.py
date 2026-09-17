@@ -17,7 +17,13 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from src.classifier import ClassificationResult, McIntoshClassifier
+from src.classifier import (
+    ClassificationResult,
+    McIntoshClassifier,
+    CLASS_DEFINITIONS,
+    DemonstrationRiskAssessment,
+    DemonstrationRiskFactors,
+)
 from src.config import SolarVisionConfig, load_config
 from src.database import SolarDatabase
 from src.detector import DetectionOutput, DetectedRegion, SunspotDetector
@@ -287,6 +293,62 @@ class SolarVisionPipeline:
                                 confidence=existing_obs["disk_confidence"],
                                 is_valid=True,
                             )
+                            reconstructed_regions = []
+                            reconstructed_classes = []
+                            for idx, r in enumerate(db_regions):
+                                reg_obj = CalibratedActiveRegion(
+                                    id=r.get("id", idx + 1),
+                                    bbox=(r.get("bbox_x", 0), r.get("bbox_y", 0), r.get("bbox_w", 0), r.get("bbox_h", 0)),
+                                    centroid_pixel=(r.get("centroid_x", 0.0), r.get("centroid_y", 0.0)),
+                                    heliographic_lat=r.get("lat_deg", 0.0),
+                                    heliographic_lon_cmd=r.get("lon_cmd_deg", 0.0),
+                                    heliocentric_angle_deg=r.get("heliocentric_angle_deg", 0.0),
+                                    cos_theta=r.get("cos_theta", 1.0),
+                                    projected_area_px=r.get("area_pixels", 0),
+                                    corrected_area_px=float(r.get("area_pixels", 0)),
+                                    area_uhem=r.get("area_uhem", 0.0),
+                                    umbra_area_uhem=r.get("umbra_area_uhem", 0.0),
+                                    penumbra_area_uhem=r.get("penumbra_area_uhem", 0.0),
+                                    umbra_penumbra_ratio=r.get("umbra_penumbra_ratio", 0.0),
+                                    longitudinal_extent_deg=r.get("longitudinal_extent_deg", 0.0),
+                                    latitudinal_extent_deg=r.get("latitudinal_extent_deg", 0.0),
+                                    perimeter_pixels=r.get("perimeter_pixels", 0.0),
+                                    circularity=r.get("circularity", 0.0),
+                                    spot_count=r.get("spot_count", 1),
+                                    mean_contrast=r.get("contrast", 0.0),
+                                    has_penumbra=bool(r.get("has_penumbra", 0)),
+                                    is_bipolar=r.get("spot_count", 1) > 1,
+                                )
+                                # Attach mcintosh_class directly
+                                reg_obj.mcintosh_class = r.get("mcintosh_class", "A")
+                                reconstructed_regions.append(reg_obj)
+
+                                # Mock/reconstruct classification object
+                                cls_obj = ClassificationResult(
+                                    region_id=r.get("id", idx + 1),
+                                    class_code=r.get("mcintosh_class", "A"),
+                                    class_name=r.get("class_name", "Unipolar Pore"),
+                                    class_info=CLASS_DEFINITIONS.get(r.get("mcintosh_class", "A"), CLASS_DEFINITIONS["A"]),
+                                    attention_level=r.get("attention_level", "Low Attention"),
+                                    flare_potential=r.get("flare_potential", "Low"),
+                                    demonstration_risk=DemonstrationRiskAssessment(
+                                        score=r.get("demonstration_risk_score", 0.0),
+                                        attention_level=r.get("attention_level", "Low Attention"),
+                                        factors=DemonstrationRiskFactors(
+                                            area_factor=r.get("risk_area_factor", 0.0),
+                                            complexity_factor=r.get("risk_complexity_factor", 0.0),
+                                            penumbra_factor=r.get("risk_penumbra_factor", 0.0),
+                                            contrast_factor=r.get("risk_contrast_factor", 0.0),
+                                            compactness_factor=r.get("risk_compactness_factor", 0.0),
+                                        ),
+                                        weights={},
+                                        assumptions=[],
+                                    ),
+                                    rule_trace=[],
+                                    confidence=r.get("confidence", 1.0),
+                                )
+                                reconstructed_classes.append(cls_obj)
+
                             return PipelineResult(
                                 success=True,
                                 is_cached=True,
@@ -297,9 +359,9 @@ class SolarVisionPipeline:
                                 solar_disk=cached_disk,
                                 limb_result=None,
                                 segmentation=None,
-                                regions=[],
+                                regions=reconstructed_regions,
                                 detected_regions=[],
-                                classifications=[],
+                                classifications=reconstructed_classes,
                                 detection_output=None,
                                 error_message=None,
                             )
