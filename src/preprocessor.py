@@ -59,6 +59,55 @@ class PreprocessingResult:
     original_shape: Tuple[int, int]   # Original (H, W) preserved exactly
     metadata: Dict[str, Any]          # Summary of operations applied
 
+    @property
+    def annotated_disk_image(self) -> np.ndarray:
+        """Render solar disk boundary and center crosshair overlay."""
+        if hasattr(self, "visuals") and self.visuals and hasattr(self.visuals, "raw_input") and self.visuals.raw_input is not None:
+            base = self.visuals.raw_input.copy()
+        elif hasattr(self, "preprocessed_image") and self.preprocessed_image is not None:
+            base = self.preprocessed_image.copy()
+        else:
+            base = np.zeros((1024, 1024, 3), dtype=np.uint8)
+
+        if base.ndim == 2:
+            vis = cv2.cvtColor(base, cv2.COLOR_GRAY2BGR)
+        else:
+            vis = base.copy()
+
+        if hasattr(self, "solar_disk") and self.solar_disk and self.solar_disk.is_valid:
+            cx = int(round(self.solar_disk.center_x))
+            cy = int(round(self.solar_disk.center_y))
+            r = int(round(self.solar_disk.radius))
+            # Photospheric limb circle (Green)
+            cv2.circle(vis, (cx, cy), r, (0, 255, 0), 2)
+            # Effective processing margin kappa = 0.985 (Cyan)
+            cv2.circle(vis, (cx, cy), max(1, int(round(r * 0.985))), (255, 255, 0), 1)
+            # Center marker (Amber)
+            cv2.drawMarker(vis, (cx, cy), (0, 165, 255), cv2.MARKER_CROSS, 24, 2)
+        return vis
+
+    @property
+    def gray_image(self) -> np.ndarray:
+        """Grayscale image representation."""
+        if hasattr(self, "visuals") and self.visuals and hasattr(self.visuals, "grayscale") and self.visuals.grayscale is not None:
+            return self.visuals.grayscale
+        return self.preprocessed_image
+
+    @property
+    def clahe_enhanced(self) -> np.ndarray:
+        """Contrast enhanced representation."""
+        if hasattr(self, "visuals") and self.visuals and hasattr(self.visuals, "enhanced") and self.visuals.enhanced is not None:
+            return self.visuals.enhanced
+        return self.preprocessed_image
+
+    @property
+    def blackhat_dark_map(self) -> np.ndarray:
+        """Morphological dark feature map."""
+        if hasattr(self, "visuals") and self.visuals and hasattr(self.visuals, "blackhat_feature_map") and self.visuals.blackhat_feature_map is not None:
+            return self.visuals.blackhat_feature_map
+        return np.zeros_like(self.preprocessed_image)
+
+
 
 class SolarImagePreprocessor:
     """

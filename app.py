@@ -753,7 +753,22 @@ elif nav_section == "🔬 Solar Image Analysis":
             st.markdown("##### Autonomous Solar Disk Localization (Otsu + Canny + Circle Fitting)")
             c_d1, c_d2 = st.columns([1.2, 0.8])
             with c_d1:
-                st.image(cv2.cvtColor(prep.annotated_disk_image, cv2.COLOR_BGR2RGB), use_container_width=True)
+                disk_img = getattr(prep, "annotated_disk_image", None)
+                if disk_img is None and hasattr(prep, "visuals") and prep.visuals and prep.visuals.raw_input is not None:
+                    disk_img = prep.visuals.raw_input.copy()
+                    if disk_img.ndim == 2:
+                        disk_img = cv2.cvtColor(disk_img, cv2.COLOR_GRAY2BGR)
+                    d = prep.solar_disk
+                    if d and d.is_valid:
+                        cx, cy, r = int(round(d.center_x)), int(round(d.center_y)), int(round(d.radius))
+                        cv2.circle(disk_img, (cx, cy), r, (0, 255, 0), 2)
+                        cv2.circle(disk_img, (cx, cy), max(1, int(round(r * 0.985))), (255, 255, 0), 1)
+                        cv2.drawMarker(disk_img, (cx, cy), (0, 165, 255), cv2.MARKER_CROSS, 24, 2)
+                if disk_img is not None:
+                    st.image(cv2.cvtColor(disk_img, cv2.COLOR_BGR2RGB), use_container_width=True)
+                else:
+                    st.info("Solar disk boundary visualization unavailable.")
+
             with c_d2:
                 disk = prep.solar_disk
                 st.markdown(f"""
@@ -769,20 +784,30 @@ elif nav_section == "🔬 Solar Image Analysis":
         with tab2:
             st.markdown("##### Radiative Transfer Flattening (Pierce & Slaughter 1977 Quadratic Model)")
             c_l1, c_l2 = st.columns(2)
-            c_l1.image(cv2.cvtColor(cur_res.preprocessing_result.gray_image, cv2.COLOR_GRAY2RGB), caption="Original Photosphere (Darkening towards edges)", use_container_width=True)
-            c_l2.image(cv2.cvtColor(cur_res.limb_result.flattened_intensity, cv2.COLOR_GRAY2RGB), caption="Limb-Darkening Compensated Flat Field", use_container_width=True)
+            g_img = getattr(prep, "gray_image", getattr(getattr(prep, "visuals", None), "grayscale", prep.preprocessed_image))
+            c_l1.image(cv2.cvtColor(g_img, cv2.COLOR_GRAY2RGB), caption="Original Photosphere (Darkening towards edges)", use_container_width=True)
+            if cur_res.limb_result is not None:
+                c_l2.image(cv2.cvtColor(cur_res.limb_result.flattened_intensity, cv2.COLOR_GRAY2RGB), caption="Limb-Darkening Compensated Flat Field", use_container_width=True)
+            else:
+                c_l2.info("Limb compensation map unavailable.")
 
         with tab3:
             st.markdown("##### Contrast Enhancement & Morphological Feature Extraction")
             c_m1, c_m2 = st.columns(2)
-            c_m1.image(cv2.cvtColor(prep.clahe_enhanced, cv2.COLOR_GRAY2RGB), caption=f"CLAHE Enhanced (Clip: {clahe_clip:.1f})", use_container_width=True)
-            c_m2.image(cv2.cvtColor(prep.blackhat_dark_map, cv2.COLOR_GRAY2RGB), caption="Black-Hat Dark Feature Map (Elliptical 15x15)", use_container_width=True)
+            enh_img = getattr(prep, "clahe_enhanced", getattr(getattr(prep, "visuals", None), "enhanced", prep.preprocessed_image))
+            bh_img = getattr(prep, "blackhat_dark_map", getattr(getattr(prep, "visuals", None), "blackhat_feature_map", np.zeros_like(enh_img)))
+            c_m1.image(cv2.cvtColor(enh_img, cv2.COLOR_GRAY2RGB), caption=f"CLAHE Enhanced (Clip: {clahe_clip:.1f})", use_container_width=True)
+            c_m2.image(cv2.cvtColor(bh_img, cv2.COLOR_GRAY2RGB), caption="Black-Hat Dark Feature Map (Elliptical 15x15)", use_container_width=True)
 
         with tab4:
             st.markdown("##### Dual-Level Intensity Segmentation (Umbra vs. Penumbra)")
             c_s1, c_s2 = st.columns(2)
-            c_s1.image(cv2.cvtColor(cur_res.segmentation.umbra_mask * 255, cv2.COLOR_GRAY2RGB), caption=f"Umbral Cores (I < {t_umbra:.2f} * I_QS)", use_container_width=True)
-            c_s2.image(cv2.cvtColor(cur_res.segmentation.penumbra_mask * 255, cv2.COLOR_GRAY2RGB), caption=f"Penumbral Halos ({t_umbra:.2f} * I_QS <= I <= {t_penumbra:.2f} * I_QS)", use_container_width=True)
+            if cur_res.segmentation is not None:
+                c_s1.image(cv2.cvtColor(cur_res.segmentation.umbra_mask, cv2.COLOR_GRAY2RGB), caption=f"Umbral Cores (I < {t_umbra:.2f} * I_QS)", use_container_width=True)
+                c_s2.image(cv2.cvtColor(cur_res.segmentation.penumbra_mask, cv2.COLOR_GRAY2RGB), caption=f"Penumbral Halos ({t_umbra:.2f} * I_QS <= I <= {t_penumbra:.2f} * I_QS)", use_container_width=True)
+            else:
+                st.info("Segmentation masks unavailable.")
+
 
         with tab5:
             st.markdown("##### Interactive Active Region ROI Patch Inspector")
@@ -793,10 +818,11 @@ elif nav_section == "🔬 Solar Image Analysis":
 
                 bx, by, bw, bh = target_reg.bbox
                 pad = 20
-                h, w = cur_res.preprocessing_result.gray_image.shape
+                patch_src = getattr(prep, "gray_image", getattr(getattr(prep, "visuals", None), "grayscale", prep.preprocessed_image))
+                h, w = patch_src.shape[:2]
                 y1, y2 = max(0, by - pad), min(h, by + bh + pad)
                 x1, x2 = max(0, bx - pad), min(w, bx + bw + pad)
-                roi_crop = cur_res.preprocessing_result.gray_image[y1:y2, x1:x2]
+                roi_crop = patch_src[y1:y2, x1:x2]
 
                 roi_c1, roi_c2 = st.columns([1, 1.2])
                 with roi_c1:
@@ -814,6 +840,7 @@ elif nav_section == "🔬 Solar Image Analysis":
                     """, unsafe_allow_html=True)
             else:
                 st.info("No active regions detected to inspect.")
+
     else:
         st.info("Please process a solar observation above to inspect Computer Vision stages.")
 

@@ -21,6 +21,12 @@ class LimbCorrectionResult:
     mu_map: np.ndarray                # cos(theta) heliocentric angle map
     radial_distance_map: np.ndarray   # r / R normalized radial distance
 
+    @property
+    def flattened_intensity(self) -> np.ndarray:
+        """Convenience alias for flattened_uint8."""
+        return self.flattened_uint8
+
+
 
 class LimbDarkeningCorrector:
     """
