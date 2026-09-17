@@ -1,0 +1,51 @@
+{
+  "total_detected": 1,
+  "confirmed_sunspots": 1,
+  "pores": 0,
+  "candidates": 0,
+  "is_spotless": false,
+  "quiet_sun_intensity": 179.0,
+  "thresholds": {
+    "umbra_threshold": 103.8,
+    "penumbra_threshold": 157.5,
+    "umbra_factor": 0.58,
+    "penumbra_factor": 0.88
+  },
+  "disk_geometry": {
+    "center_x": 511.5358581542969,
+    "center_y": 511.5774230957031,
+    "radius": 473.28704833984375
+  },
+  "regions": [
+    {
+      "id": 1,
+      "region_id": "AR-001",
+      "bbox_x": 933,
+      "bbox_y": 624,
+      "bbox_w": 6,
+      "bbox_h": 8,
+      "centroid_x": 935.41,
+      "centroid_y": 627.48,
+      "area_pixels": 29,
+      "perimeter_pixels": 18.14,
+      "circularity": 1.0,
+      "equivalent_diameter_px": 6.08,
+      "mean_intensity": 85.1,
+      "min_intensity": 12.8,
+      "contrast": 0.525,
+      "umbra_area_pixels": 16,
+      "penumbra_area_pixels": 13,
+      "has_penumbra": true,
+      "spot_count": 1,
+      "scientific_status": "Confirmed Sunspot Group",
+      "confidence": 0.85,
+      "heliographic_lat_deg": -14.18,
+      "heliographic_lon_cmd_deg": 67.48,
+      "heliocentric_angle_deg": 68.2,
+      "cos_theta": 0.371,
+      "area_uhem": 55.48,
+      "umbra_area_uhem": 30.61,
+      "penumbra_area_uhem": 24.87
+    }
+  ]
+}

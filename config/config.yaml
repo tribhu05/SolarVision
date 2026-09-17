@@ -1,0 +1,119 @@
+# SolarVision Configuration File
+# Automated Solar Active Region Detection and Analysis Pipeline
+
+pipeline:
+  name: "SolarVision"
+  version: "1.1.0"
+  log_level: "INFO"
+
+data_source:
+  # Primary live feed: NASA SDO/HMI Visible Continuum (Fe I 6173 Å)
+  primary_url: "https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIIC.jpg"
+  backup_urls:
+    - "https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMIIC.jpg"
+    - "https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMII.jpg"
+  # SDO Archive URL template
+  archive_url_template: "https://sdo.gsfc.nasa.gov/assets/img/browse/{year}/{month:02d}/{day:02d}/{year}{month:02d}{day:02d}_{hour:02d}0000_1024_HMIIC.jpg"
+  timeout_seconds: 15
+  max_retries: 3
+  retry_backoff_factor: 1.5
+  user_agent: "SolarVision-Research-Client/1.1 (VIT Computer Vision Project)"
+  raw_dir: "data/raw"
+  sample_dir: "data/sample_images"
+  avoid_duplicates: true
+  min_image_dimension: 256
+  min_file_size_bytes: 8192
+
+disk_detection:
+  # Solar disk localization parameters
+  blur_kernel_size: 5
+  canny_threshold1: 30
+  canny_threshold2: 100
+  disk_threshold_ratio: 0.18    # Fraction of max intensity to segment solar disk from dark sky
+  min_radius_ratio: 0.25        # Minimum solar disk radius as fraction of image dimension
+  max_radius_ratio: 0.52        # Maximum solar disk radius as fraction of image dimension
+  edge_margin_fraction: 0.02    # Exclude outer 2% of disk boundary due to limb diffraction
+
+preprocessing:
+  # Classical CV noise reduction: 'bilateral' (edge-preserving), 'gaussian', or 'median'
+  denoise_method: "bilateral"
+  bilateral_d: 5
+  bilateral_sigma_color: 25.0
+  bilateral_sigma_space: 3.0
+  gaussian_kernel_size: 3
+  gaussian_sigma: 0.8
+  # Contrast enhancement: 'clahe', 'linear_stretch', or 'none'
+  contrast_method: "clahe"
+  clahe_clip_limit: 1.8
+  clahe_tile_grid_size: 8
+  # Morphological dark feature isolation (Black-Hat transform)
+  enable_blackhat: true
+  blackhat_kernel_size: 15
+  # Morphological cleanup kernel size
+  morph_cleanup_kernel_size: 3
+
+limb_darkening:
+  # Photospheric limb darkening correction (Minnaert / linear cosine model)
+  # I(mu) = I_0 * [1 - u * (1 - mu)], where mu = cos(theta) = sqrt(1 - (r/R)^2)
+  model: "linear_u"
+  u_coefficient: 0.60           # Standard visible continuum coefficient (SDO/HMI 6173 Å)
+  quiet_sun_percentile: 90.0    # Percentile used to establish quiet-Sun base intensity I_QS
+  inner_disk_sample_radius: 0.60 # Sample region (fraction of R) to estimate quiet-Sun intensity
+
+segmentation:
+  # Intensity threshold multipliers relative to quiet-Sun background (I_QS)
+  umbra_threshold_factor: 0.58   # Umbra core: I <= 0.58 * I_QS
+  penumbra_threshold_factor: 0.88 # Penumbra boundary: I <= 0.88 * I_QS
+  min_sunspot_area_pixels: 12    # Filter out individual solar granulation cells
+  max_sunspot_area_pixels: 150000 # Upper bound safety cutoff
+  min_contrast: 0.08             # Minimum intensity contrast to reject shallow limb variations
+  morphology_kernel_size: 3      # Kernel size for morphological noise suppression
+  clustering_distance_deg: 5.0   # Angular distance in degrees to group spots into an Active Region
+
+solar_physics:
+  # Solar physical constants and coordinates
+  solar_radius_km: 696340.0
+  # Differential rotation model (Snodgrass 1984): omega(phi) = A + B*sin^2(phi) + C*sin^4(phi) [deg/day]
+  diff_rot_a: 14.713
+  diff_rot_b: -2.396
+  diff_rot_c: -1.787
+  b0_angle_deg: 0.0              # Solar equator tilt towards observer (default 0 or ephemeris)
+  p_angle_deg: 0.0               # Solar rotation axis position angle
+
+classification:
+  # McIntosh / Zurich rule engine thresholds
+  pore_max_area_uhem: 25.0       # Max area for single pore (Class A)
+  mature_spot_min_area_uhem: 50.0 # Min area for mature unipolar spot with penumbra (Class H)
+  bipolar_min_sep_deg: 2.0       # Min longitudinal span to consider bipolar
+  class_d_max_span_deg: 10.0     # Max longitudinal span for compact bipolar (Class D)
+  class_e_max_span_deg: 15.0     # Max longitudinal span for medium bipolar (Class E)
+  class_c_penumbra_fraction: 0.25 # Max penumbra fraction for asymmetric penumbra (Class C)
+
+  # Heuristic Demonstration Risk Scoring (NOT an operational flare prediction model)
+  risk_weight_area: 0.30         # Weight for physical area factor
+  risk_weight_complexity: 0.25   # Weight for spot count & longitudinal extent
+  risk_weight_penumbra: 0.20     # Weight for penumbra/umbra coverage
+  risk_weight_contrast: 0.15     # Weight for photospheric intensity contrast
+  risk_weight_compactness: 0.10  # Weight for shape irregularity (1 - circularity)
+
+  area_baseline_uhem: 1000.0     # Baseline area for 100% area factor (e.g. major active region)
+  contrast_baseline: 0.60        # Baseline contrast for 100% contrast factor
+  low_attention_threshold: 35.0  # Threshold for Low Attention (< 35)
+  moderate_attention_threshold: 70.0 # Threshold for Moderate Attention (< 70, >= 70 is High Attention)
+
+tracking:
+  # Multi-temporal kinematic tracking & solar rotation compensation
+  max_matching_dist_deg: 7.0       # Max angular distance residual in degrees
+  max_lat_diff_deg: 4.0            # Max latitude drift (latitudes are conserved)
+  min_area_ratio: 0.15             # Min area ratio between consecutive frames
+  max_area_ratio: 6.0              # Max area ratio between consecutive frames
+  max_prediction_gap_days: 3.5     # Max gap before terminating track continuity
+  limb_cutoff_deg: 75.0            # Longitude threshold for western limb rotation
+  east_limb_threshold_deg: -65.0   # Longitude threshold for eastern limb appearance
+  track_id_prefix: "TRK"           # Prefix for assigned persistent tracks
+
+storage:
+  database_path: "data/solarvision.db"
+  sample_data_dir: "data/sample_images"
+  raw_data_dir: "data/raw"
+  catalog_index_path: "data/ingestion_catalog.json"

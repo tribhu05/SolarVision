@@ -1,0 +1,18 @@
+{
+  "filename": "sdo_hmi_20240511_000000.jpg",
+  "filepath": "C:\\Users\\Tribh\\Documents\\antigravity\\charming-darwin\\data\\sample_images\\sdo_hmi_20240511_000000.jpg",
+  "source_url": "https://sdo.gsfc.nasa.gov/assets/img/browse/2024/05/11/20240511_000000_1024_HMIIC.jpg",
+  "source_type": "NASA_SDO_HMI_ARCHIVE",
+  "observatory": "NASA Solar Dynamics Observatory (SDO)",
+  "instrument": "Helioseismic and Magnetic Imager (HMI)",
+  "wavelength_channel": "Fe I 6173 \u00c5 (Visible Continuum)",
+  "download_timestamp_utc": "2026-09-16T18:33:19.195023Z",
+  "source_last_modified": "Sat, 11 May 2024 00:30:16 GMT",
+  "etag": "\"35d49-61822c198830c\"",
+  "sha256": "9a7e7d8ba5ee2bb3981e9f16618bcb4166b8262d0d09474b2109aee025cdd254",
+  "file_size_bytes": 220489,
+  "image_width": 1024,
+  "image_height": 1024,
+  "channels": 3,
+  "is_authentic_real_data": true
+}
