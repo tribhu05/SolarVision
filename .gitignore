@@ -12,9 +12,26 @@ htmlcov/
 venv/
 env/
 ENV/
+.venv/
 
-# Streamlit
-.streamlit/
+# Environment Variables & Secrets
+.env
+.env.*
+*.env
+secrets.toml
+.streamlit/secrets.toml
 
-# Database
+# Streamlit Local Runtime
+.streamlit/runtime/
+
+# Database Files (Local execution caches; auto-created on startup)
 *.db
+*.sqlite
+*.sqlite3
+
+# OS & Editor Artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
