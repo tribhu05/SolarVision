@@ -150,9 +150,10 @@ class ActiveRegionTracker:
         self,
         physics_config: Optional[SolarPhysicsConfig] = None,
         tracking_config: Optional[TrackingConfig] = None,
+        config: Optional[Any] = None,
     ):
         self.physics_config = physics_config or SolarPhysicsConfig()
-        self.config = tracking_config or TrackingConfig()
+        self.config = tracking_config or (config if isinstance(config, TrackingConfig) else TrackingConfig())
         self.next_track_number: int = 1
         
         # Mapping: tracking_id -> List[TrackedObservation] (backwards compatibility)
@@ -163,6 +164,17 @@ class ActiveRegionTracker:
         self.last_observation_time: Optional[datetime] = None
         # List of active tracks from immediately preceding frame: [(track_id, region, lon_cmd, lat, area_uhem)]
         self.active_tracks: List[Tuple[str, Any, float, float, float]] = []
+
+    def add_observation(
+        self,
+        frame_name_or_id: Any,
+        observation_time: datetime,
+        regions: List[Any],
+        solar_disk: Optional[Any] = None,
+    ) -> List[TrackedObservation]:
+        """Convenience alias for track_observation supporting frame metadata."""
+        return self.track_observation(regions=regions, observation_time=observation_time)
+
 
     def compute_differential_rotation(self, latitude_deg: float) -> float:
         """

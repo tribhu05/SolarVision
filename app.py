@@ -246,11 +246,31 @@ NAV_PAGES = [
 
 if "selected_page" not in st.session_state:
     st.session_state.selected_page = "🏠 Overview"
+if "nav_sidebar" not in st.session_state:
+    st.session_state.nav_sidebar = st.session_state.selected_page
+if "nav_pills" not in st.session_state:
+    st.session_state.nav_pills = st.session_state.selected_page
+
+
+def sync_from_sidebar():
+    target = st.session_state.get("nav_sidebar")
+    if target:
+        st.session_state.nav_pills = target
+        st.session_state.selected_page = target
+
+
+def sync_from_pills():
+    target = st.session_state.get("nav_pills")
+    if target:
+        st.session_state.nav_sidebar = target
+        st.session_state.selected_page = target
 
 
 def navigate_to(page_name: str):
     """Safely switch view and trigger immediate UI re-render."""
     st.session_state.selected_page = page_name
+    st.session_state.nav_sidebar = page_name
+    st.session_state.nav_pills = page_name
     st.rerun()
 
 
@@ -259,18 +279,15 @@ st.sidebar.markdown("## ☀️ **SolarVision**")
 st.sidebar.caption("VIT B.Tech Computer Vision Project")
 st.sidebar.markdown('<span class="status-pill">● System Active & Online</span>', unsafe_allow_html=True)
 
-cur_nav_idx = NAV_PAGES.index(st.session_state.selected_page) if st.session_state.selected_page in NAV_PAGES else 0
-sidebar_page = st.sidebar.radio(
+st.sidebar.radio(
     "Navigation Menu",
     NAV_PAGES,
-    index=cur_nav_idx,
-    key="sidebar_radio_selection",
+    key="nav_sidebar",
+    on_change=sync_from_sidebar,
 )
-if sidebar_page != st.session_state.selected_page:
-    st.session_state.selected_page = sidebar_page
-    st.rerun()
 
 nav_section = st.session_state.selected_page
+
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ **Computer Vision Tuning**")
@@ -379,22 +396,25 @@ def process_current_image(image_input, reprocess: bool = False) -> PipelineResul
 
 
 # ==============================================================================
+# Persistent Global Observatory Navigation Bar
+# ==============================================================================
+st.pills(
+    "Observatory Navigation Views",
+    NAV_PAGES,
+    key="nav_pills",
+    on_change=sync_from_pills,
+    label_visibility="collapsed",
+)
+st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
+
+
+# ==============================================================================
 # SECTION 1: OVERVIEW DASHBOARD
 # ==============================================================================
 if nav_section == "🏠 Overview":
     st.markdown('<div class="main-title">☀️ SolarVision: Observatory Overview</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Automated Solar Active Region Detection, Photometric Calibration, Modified Zurich Classification, and Differential Rotation Tracking</div>', unsafe_allow_html=True)
 
-    # Top Navigation Bar for Seamless 1-Click Access
-    top_nav = st.pills(
-        "Views",
-        NAV_PAGES,
-        default=st.session_state.selected_page,
-        label_visibility="collapsed",
-        key="top_nav_pills_overview",
-    )
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
 
     # Welcome Explanation Banner
     st.markdown("""
@@ -655,12 +675,8 @@ elif nav_section == "🔬 Solar Image Analysis":
     st.markdown('<div class="main-title">🔬 Solar Image Analysis & CV Preprocessing</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Interactive Photometric Calibration Workspace: Solar Disk Boundary Fitting, Radiative Transfer Compensation, and Morphological Filtering</div>', unsafe_allow_html=True)
 
-    # Top Navigation Bar
-    top_nav = st.pills("Views", NAV_PAGES, default=st.session_state.selected_page, label_visibility="collapsed", key="top_nav_pills_analysis")
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
-
     col_inp1, col_inp2 = st.columns([1.2, 0.8])
+
     with col_inp1:
         inp_mode = st.radio(
             "Image Input Source",
@@ -809,16 +825,25 @@ elif nav_section == "🎯 Detection Results":
     st.markdown('<div class="main-title">🎯 Active Region Detection & Calibrated Photometry</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Sub-Pixel Centroids, Stonyhurst Heliographic Coordinates (B, L), Foreshortening Correction, and Physical Area (μHem)</div>', unsafe_allow_html=True)
 
-    top_nav = st.pills("Views", NAV_PAGES, default=st.session_state.selected_page, label_visibility="collapsed", key="top_nav_pills_det")
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
-
     cur_res: Optional[PipelineResult] = st.session_state.get("pipeline_result")
 
     if cur_res and cur_res.success:
         det_col1, det_col2 = st.columns([1.2, 0.8])
         with det_col1:
-            st.image(cv2.cvtColor(cur_res.annotated_image, cv2.COLOR_BGR2RGB), caption="Detection Overlays with Bounding Boxes & Heliographic Centroids", use_container_width=True)
+            if cur_res.annotated_image is not None and getattr(cur_res.annotated_image, "size", 0) > 0:
+                st.image(cv2.cvtColor(cur_res.annotated_image, cv2.COLOR_BGR2RGB), caption="Detection Overlays with Bounding Boxes & Heliographic Centroids", use_container_width=True)
+            elif cur_res.image_metadata and Path(cur_res.image_metadata.filepath).exists():
+                raw_bgr = cv2.imread(cur_res.image_metadata.filepath)
+                if raw_bgr is not None and getattr(raw_bgr, "size", 0) > 0:
+                    st.image(cv2.cvtColor(raw_bgr, cv2.COLOR_BGR2RGB), caption=f"Solar Continuum Frame: {cur_res.image_metadata.filename}", use_container_width=True)
+            elif st.session_state.get("active_sample_name"):
+                raw_p = sample_dir / st.session_state.active_sample_name
+                if raw_p.exists():
+                    raw_bgr = cv2.imread(str(raw_p))
+                    if raw_bgr is not None and getattr(raw_bgr, "size", 0) > 0:
+                        st.image(cv2.cvtColor(raw_bgr, cv2.COLOR_BGR2RGB), caption=f"Solar Continuum Frame: {st.session_state.active_sample_name}", use_container_width=True)
+            else:
+                st.info("Solar observation loaded (no visual overlays available).")
 
         with det_col2:
             st.markdown("##### Detection Telemetry Summary")
@@ -882,7 +907,20 @@ elif nav_section == "🎯 Detection Results":
                     mime="application/json",
                 )
     else:
-        st.info("No active observation detected. Process an image in 'Solar Image Analysis' to view detection results.")
+        st.markdown("""
+        <div class="welcome-card">
+            <h4 style="margin-top:0; color:#f59e0b;">🎯 No Active Detection Results Loaded</h4>
+            <p style="color:#cbd5e1; font-size:0.92rem;">Execute the end-to-end Computer Vision pipeline on the May 10, 2024 AR 13664 superstorm observation or load an image in 'Solar Image Analysis'.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🚀 Run Pipeline on AR 13664 Superstorm (May 10, 2024)", use_container_width=True):
+            ar_path = sample_dir / "sdo_hmi_ar3664_20240510.jpg"
+            if ar_path.exists():
+                st.session_state.active_sample_name = "sdo_hmi_ar3664_20240510.jpg"
+                with st.spinner("Processing AR 13664 continuum observation..."):
+                    st.session_state.pipeline_result = pipeline.process_image(ar_path, reprocess=True)
+                st.rerun()
+
 
 
 # ==============================================================================
@@ -891,10 +929,6 @@ elif nav_section == "🎯 Detection Results":
 elif nav_section == "🏷️ Region Classification":
     st.markdown('<div class="main-title">🏷️ Modified Zurich Classification & Demonstration Risk</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Deterministic Morphological Rule Deductions (Classes A–H) and 5-Factor Complexity Assessment</div>', unsafe_allow_html=True)
-
-    top_nav = st.pills("Views", NAV_PAGES, default=st.session_state.selected_page, label_visibility="collapsed", key="top_nav_pills_clf")
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
 
     st.warning(f"⚠️ **Space Weather Non-Prediction Disclaimer**: {DEMONSTRATION_RISK_DISCLAIMER}")
 
@@ -915,18 +949,26 @@ elif nav_section == "🏷️ Region Classification":
 
         for c in cur_res.classifications:
             risk = c.demonstration_risk
-            with st.expander(f"📌 AR-{c.region_id}: Class **{c.class_code}** ({c.class_name[:40]}...) — Risk: {risk.score:.1f}/100 ({c.attention_level})", expanded=True):
+            class_desc = getattr(c.class_info, "description", "Standard morphological profile")
+            class_life = getattr(c.class_info, "typical_lifespan", "N/A")
+            class_topo = getattr(c.class_info, "magnetic_topology", "N/A")
+            class_display_name = getattr(c.class_info, "name", c.class_name)
+
+            with st.expander(f"📌 AR-{c.region_id}: Class **{c.class_code}** ({class_display_name[:40]}...) — Risk: {risk.score:.1f}/100 ({c.attention_level})", expanded=True):
                 rc1, rc2 = st.columns(2)
                 with rc1:
-                    st.markdown(f"**Classification:** `Class {c.class_code} - {c.class_name}`")
-                    st.markdown(f"- **Physical Definition:** {c.class_info.description}")
-                    st.markdown(f"- **Typical Lifespan:** `{c.class_info.typical_lifespan}`")
-                    st.markdown(f"- **Magnetic Topology:** `{c.class_info.magnetic_topology}`")
+                    st.markdown(f"**Classification:** `Class {c.class_code} - {class_display_name}`")
+                    st.markdown(f"- **Physical Definition:** {class_desc}")
+                    st.markdown(f"- **Typical Lifespan:** `{class_life}`")
+                    st.markdown(f"- **Magnetic Topology:** `{class_topo}`")
                     st.markdown(f"- **Rule Match Confidence:** `{c.confidence * 100:.0f}%`")
 
                     st.markdown("**Auditable Rule Deduction Trace:**")
-                    for step in c.rule_trace:
-                        st.markdown(f"- {step}")
+                    if c.rule_trace:
+                        for step in c.rule_trace:
+                            st.markdown(f"- {step}")
+                    else:
+                        st.markdown("- Formed deterministic rule deduction from calibrated geometry.")
 
                 with rc2:
                     st.markdown(f"**Demonstration Complexity Score:** `{risk.attention_level}` ({risk.score:.1f}/100)")
@@ -945,7 +987,20 @@ elif nav_section == "🏷️ Region Classification":
                     for asm in risk.assumptions:
                         st.caption(f"• {asm}")
     else:
-        st.info("No classification data available. Please process a solar observation in 'Solar Image Analysis'.")
+        st.markdown("""
+        <div class="welcome-card">
+            <h4 style="margin-top:0; color:#f59e0b;">🏷️ No Classification Records Loaded</h4>
+            <p style="color:#cbd5e1; font-size:0.92rem;">Execute classification on the May 10, 2024 AR 13664 superstorm observation or load an observation in 'Solar Image Analysis'.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🚀 Classify AR 13664 Superstorm (May 10, 2024)", use_container_width=True):
+            ar_path = sample_dir / "sdo_hmi_ar3664_20240510.jpg"
+            if ar_path.exists():
+                st.session_state.active_sample_name = "sdo_hmi_ar3664_20240510.jpg"
+                with st.spinner("Processing AR 13664 classification..."):
+                    st.session_state.pipeline_result = pipeline.process_image(ar_path, reprocess=True)
+                st.rerun()
+
 
 
 # ==============================================================================
@@ -954,10 +1009,6 @@ elif nav_section == "🏷️ Region Classification":
 elif nav_section == "🛰️ Multi-Day Tracking":
     st.markdown('<div class="main-title">🛰️ Multi-Day Active Region Kinematic Tracking</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Solar Differential Rotation Modeling (Snodgrass 1984) & Longitudinal Migration on Real NASA SDO Sequences</div>', unsafe_allow_html=True)
-
-    top_nav = st.pills("Views", NAV_PAGES, default=st.session_state.selected_page, label_visibility="collapsed", key="top_nav_pills_trk")
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
 
     st.warning(f"⚠️ **Scientific Tracking Guardrail**: {TRACKING_DISCLAIMER}")
 
@@ -972,17 +1023,11 @@ elif nav_section == "🛰️ Multi-Day Tracking":
     if len(seq_files) >= 2:
         st.write(f"Real SDO Multi-Day Sequence: `{', '.join(f.name for f in seq_files)}`")
 
-        tracker = ActiveRegionTracker(config=config.tracking)
-
-        # Track Sequence Execution
+        # Track Sequence Execution using the pipeline's built-in process_sequence
         with st.spinner("Executing differential rotation tracking across multi-day SDO frames..."):
-            for sf in seq_files:
-                img = cv2.imread(str(sf))
-                obs_t = SolarDataIngestor.parse_observation_time_from_filename(sf.name)
-                prep_res = pipeline.preprocessor.process(img)
-                seg_res = pipeline.segmenter.segment(prep_res.limb_result, prep_res.solar_disk)
-                cal_regs = pipeline.feature_extractor.extract_features(seg_res.regions, prep_res.solar_disk)
-                tracker.add_observation(sf.name, obs_t, cal_regs, prep_res.solar_disk)
+            seq_res = pipeline.process_sequence(seq_files, reprocess=False)
+            tracker = pipeline.tracker
+
 
         # Tracking Telemetry Cards
         tk1, tk2, tk3, tk4 = st.columns(4)
@@ -1028,11 +1073,8 @@ elif nav_section == "📊 Historical Activity":
     st.markdown('<div class="main-title">📊 Historical Solar Activity & Database Catalog</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Persistent Relational SQLite Storage & Solar Cycle Spatial Distributions</div>', unsafe_allow_html=True)
 
-    top_nav = st.pills("Views", NAV_PAGES, default=st.session_state.selected_page, label_visibility="collapsed", key="top_nav_pills_hist")
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
-
     catalog_df = get_catalog_df(db)
+
 
     if not catalog_df.empty:
         hk1, hk2, hk3, hk4 = st.columns(4)
@@ -1102,21 +1144,22 @@ elif nav_section == "📈 Scientific Evaluation":
     st.markdown('<div class="main-title">📈 Scientific Evaluation & NOAA Ground Truth Benchmark</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Quantitative Verification against Official NOAA Space Weather Prediction Center (SWPC) Solar Region Summaries</div>', unsafe_allow_html=True)
 
-    top_nav = st.pills("Views", NAV_PAGES, default=st.session_state.selected_page, label_visibility="collapsed", key="top_nav_pills_eval")
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
-
     st.markdown("""
     <div class="scientific-badge">GROUND TRUTH BENCHMARK: NOAA SWPC SOLAR REGION SUMMARIES (SRS)</div>
     """, unsafe_allow_html=True)
 
     cur_res: Optional[PipelineResult] = st.session_state.get("pipeline_result")
+    bench_keys = list(NOAA_BENCHMARK_CATALOG.keys())
     active_fn = st.session_state.get("active_sample_name", "sdo_hmi_ar3664_20240510.jpg")
+
+    if active_fn not in NOAA_BENCHMARK_CATALOG and bench_keys:
+        active_fn = bench_keys[0]
 
     bench_obs = NOAA_BENCHMARK_CATALOG.get(active_fn)
 
     if cur_res and bench_obs:
         scorecard = evaluator.evaluate_detections(cur_res, bench_obs)
+
 
         # Top Quantitative Scorecard
         ek1, ek2, ek3, ek4, ek5 = st.columns(5)
@@ -1181,11 +1224,8 @@ elif nav_section == "📚 Methodology & Limitations":
     st.markdown('<div class="main-title">📚 Scientific Methodology & System Limitations</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Mathematical Formulations, Physical Calibration, and Academic Citations</div>', unsafe_allow_html=True)
 
-    top_nav = st.pills("Views", NAV_PAGES, default=st.session_state.selected_page, label_visibility="collapsed", key="top_nav_pills_meth")
-    if top_nav and top_nav != st.session_state.selected_page:
-        navigate_to(top_nav)
-
     st.markdown(r"""
+
     ### 1. Photospheric Limb Darkening Correction (Pierce & Slaughter 1977)
     The optical depth $\tau = 1$ penetrates deeper, hotter photospheric layers at disk center than at the limb.
     SolarVision normalizes the radial intensity gradient using the quadratic Pierce & Slaughter approximation ($u = 0.56, v = 0.20$ for Fe I 6173 Å continuum):

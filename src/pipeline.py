@@ -349,22 +349,51 @@ class SolarVisionPipeline:
                                 )
                                 reconstructed_classes.append(cls_obj)
 
+                            # If image array is loaded, run lightweight visual rendering for dashboard inspection
+                            prep_res = None
+                            limb_res = None
+                            seg_res = None
+                            det_out = None
+                            ann_img = None
+                            disk_geom = cached_disk
+
+                            if img_bgr is not None and getattr(img_bgr, "size", 0) > 0:
+                                try:
+                                    prep_res = self.preprocessor.process(img_bgr)
+                                    disk_geom = prep_res.solar_disk
+                                    limb_res = prep_res.limb_result
+                                    seg_res = self.segmenter.segment(limb_res, disk_geom)
+                                    det_out = self.sunspot_detector.detect(
+                                        img_bgr,
+                                        disk=disk_geom,
+                                        limb_result=limb_res,
+                                    )
+                                    ann_img = det_out.annotated_image
+                                except Exception as ren_err:
+                                    logger.warning(f"Could not render cached visual payloads: {ren_err}")
+
+                            tracked_obs = self.tracker.track_observation(reconstructed_regions, observation_time)
+
                             return PipelineResult(
                                 success=True,
                                 is_cached=True,
                                 observation_id=existing_obs["id"],
                                 image_id=image_id,
-                                observation_time=datetime.fromisoformat(existing_obs["timestamp"]),
+                                observation_time=datetime.fromisoformat(existing_obs["timestamp"]) if isinstance(existing_obs["timestamp"], str) else existing_obs["timestamp"],
                                 image_metadata=current_metadata,
-                                solar_disk=cached_disk,
-                                limb_result=None,
-                                segmentation=None,
+                                solar_disk=disk_geom,
+                                limb_result=limb_res,
+                                segmentation=seg_res,
                                 regions=reconstructed_regions,
-                                detected_regions=[],
+                                detected_regions=det_out.regions if det_out else [],
                                 classifications=reconstructed_classes,
-                                detection_output=None,
+                                detection_output=det_out,
+                                preprocessing_result=prep_res,
+                                annotated_image=ann_img,
+                                tracked_observations=tracked_obs,
                                 error_message=None,
                             )
+
 
             # 3. Execute Core Computer Vision Pipeline Stages
             prep_res = self.preprocessor.process(img_bgr)
