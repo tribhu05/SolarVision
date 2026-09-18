@@ -52,7 +52,7 @@ def build_html_report() -> str:
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SolarVision - Final Course Project Report (VIT)</title>
+<title>SolarVision - Final Course Project Report (VIT Bhopal University)</title>
 <style>
   @page {{
     size: A4 portrait;
@@ -64,7 +64,7 @@ def build_html_report() -> str:
       color: #666;
     }}
     @top-right {{
-      content: "VIT B.Tech Computer Vision";
+      content: "VIT Bhopal University • B.Tech Computer Vision";
       font-family: 'Helvetica Neue', Arial, sans-serif;
       font-size: 8pt;
       color: #666;
@@ -352,8 +352,8 @@ def build_html_report() -> str:
 <!-- SECTION 1: COVER PAGE -->
 <div class="cover-page">
   <div>
-    <div class="cover-inst">Vellore Institute of Technology</div>
-    <div class="cover-school">School of Computer Science and Engineering (SCOPE)</div>
+    <div class="cover-inst">VIT Bhopal University</div>
+    <div class="cover-school">School of Computing Science and Engineering (SCSE)</div>
     <div class="cover-badge">B.Tech Flipped Course Evaluation &bull; Academic Year 2025–2026</div>
   </div>
 
@@ -377,15 +377,23 @@ def build_html_report() -> str:
     </tr>
     <tr>
       <td class="label">Student Name:</td>
-      <td class="val">Tribhuvan (Project Lead & Author)</td>
+      <td class="val">Tribhuwan Singh (Project Lead & Author)</td>
+    </tr>
+    <tr>
+      <td class="label">Registration ID:</td>
+      <td class="val">24BAI10358</td>
+    </tr>
+    <tr>
+      <td class="label">Programme:</td>
+      <td class="val">Bachelor of Technology (B.Tech)</td>
     </tr>
     <tr>
       <td class="label">Department:</td>
-      <td class="val">School of Computer Science and Engineering (SCOPE)</td>
+      <td class="val">School of Computing Science and Engineering (SCSE)</td>
     </tr>
     <tr>
       <td class="label">Institution:</td>
-      <td class="val">Vellore Institute of Technology (VIT)</td>
+      <td class="val">VIT Bhopal University</td>
     </tr>
     <tr>
       <td class="label">Software Version:</td>

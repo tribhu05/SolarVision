@@ -17,7 +17,7 @@ data_source:
   timeout_seconds: 15
   max_retries: 3
   retry_backoff_factor: 1.5
-  user_agent: "SolarVision-Research-Client/1.1 (VIT Computer Vision Project)"
+  user_agent: "SolarVision-Research-Client/1.1 (VIT Bhopal University Computer Vision Project - Tribhuwan Singh 24BAI10358)"
   raw_dir: "data/raw"
   sample_dir: "data/sample_images"
   avoid_duplicates: true

@@ -1,7 +1,8 @@
-# SolarVision: Final VIT Submission & Quality Verification Checklist
+# SolarVision: Final VIT Bhopal University Submission & Quality Verification Checklist
 
 **Course**: B.Tech Computer Vision  
-**Institution**: Vellore Institute of Technology (VIT)  
+**Student Name**: Tribhuwan Singh | **Registration ID**: 24BAI10358  
+**Institution**: VIT Bhopal University  
 **System Name**: SolarVision (Autonomous Solar Active Region Analysis System)  
 **Date**: September 2026  
 **Status**: **100% VERIFIED & READY FOR SUBMISSION**

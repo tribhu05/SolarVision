@@ -1,6 +1,7 @@
 """
 SolarVision: Scientific Evaluation & Benchmark Module
-VIT B.Tech Computer Vision Course Project
+VIT Bhopal University B.Tech Computer Vision Course Project
+Author: Tribhuwan Singh (24BAI10358)
 
 Evaluates the performance, accuracy, and physical limitations of the SolarVision
 Computer Vision pipeline by comparing detection outputs against official

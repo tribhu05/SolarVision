@@ -2,7 +2,9 @@
 
 **System Name**: SolarVision: Autonomous Solar Active Region Segmentation, Heliographic Calibration, and Kinematic Tracking System  
 **Course**: B.Tech Computer Vision Course Project  
-**Institution**: Vellore Institute of Technology (VIT)  
+**Student Name**: Tribhuwan Singh  
+**Registration ID**: 24BAI10358  
+**Institution**: VIT Bhopal University  
 **Version**: 1.0.0 (Production / Submission Release)  
 **Academic Year**: 2025–2026  
 

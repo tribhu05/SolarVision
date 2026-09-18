@@ -8,12 +8,13 @@
 
 An end-to-end, scientifically grounded Computer Vision pipeline and interactive analytics dashboard for detecting, segmenting, characterizing, classifying, and tracking solar active regions (sunspots) on full-disk solar continuum imagery (SDO/HMI and SOHO/MDI).
 
-Developed for the **VIT B.Tech Computer Vision Course Project**.
+Developed for the **VIT Bhopal University B.Tech Computer Vision Course Project**.  
+**Author**: **Tribhuwan Singh** | **Registration ID**: `24BAI10358` | **Institution**: **VIT Bhopal University**
 
 ---
 
 ## 📑 Academic Documentation & Submission Suite
-- 📌 [**Mandatory Project Statement (`statement.md`)**](statement.md): Official VIT submission statement (Problem Statement, Scope, Target Users, High-Level Features).
+- 📌 [**Mandatory Project Statement (`statement.md`)**](statement.md): Official VIT Bhopal University submission statement (Problem Statement, Scope, Target Users, High-Level Features).
 - 📄 [**Complete Project Report (`PROJECT_REPORT.md`)**](PROJECT_REPORT.md): Full 15-section academic report matching VIT portal submission requirements.
 - 🏛️ [**System Architecture (`ARCHITECTURE.md`)**](ARCHITECTURE.md): Multi-layer system design, module interactions, and database schema.
 - 📐 [**Mathematical Methodology (`METHODOLOGY.md`)**](METHODOLOGY.md): Comprehensive mathematical and physical derivations (radiative transfer, Stonyhurst projection, Snodgrass kinematics).

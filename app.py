@@ -1,6 +1,7 @@
 """
 SolarVision: Automated Solar Active Region Detection and Analysis
-VIT B.Tech Computer Vision Course Project
+VIT Bhopal University B.Tech Computer Vision Course Project
+Author: Tribhuwan Singh | Registration ID: 24BAI10358
 Comprehensive Scientific Dashboard & Solar Research Analytics Interface
 """
 
@@ -276,7 +277,7 @@ def navigate_to(page_name: str):
 
 # Sidebar Navigation
 st.sidebar.markdown("## ☀️ **SolarVision**")
-st.sidebar.caption("VIT B.Tech Computer Vision Project")
+st.sidebar.caption("VIT Bhopal University • Computer Vision")
 st.sidebar.markdown('<span class="status-pill">● System Active & Online</span>', unsafe_allow_html=True)
 
 st.sidebar.radio(
@@ -357,6 +358,8 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(
     """
     <div class="meta-card">
+    <b>Author:</b> Tribhuwan Singh (24BAI10358)<br/>
+    <b>Institution:</b> VIT Bhopal University<br/>
     <b>Observatory:</b> NASA SDO / HMI<br/>
     <b>Wavelength:</b> Fe I 6173 Å Continuum<br/>
     <b>Resolution:</b> 1024 × 1024 px<br/>

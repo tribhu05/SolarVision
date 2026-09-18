@@ -1,9 +1,9 @@
 # SolarVision: Project Implementation Plan & 3-Day Roadmap
 
 **Project**: SolarVision - Automated Solar Active Region Detection and Analysis  
-**Target Course**: VIT B.Tech Computer Vision (Course Project)  
-**Timeline**: 3 Days to Final Submission  
-**Author**: Engineering Team  
+**Target Course**: VIT Bhopal University B.Tech Computer Vision (Course Project)  
+**Student Name**: Tribhuwan Singh | **Registration ID**: 24BAI10358  
+**Institution**: VIT Bhopal University  
 
 ---
 

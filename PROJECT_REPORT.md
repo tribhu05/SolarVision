@@ -6,10 +6,10 @@
 
 ```
 ========================================================================================
-                               VELLORE INSTITUTE OF TECHNOLOGY
-                    School of Computer Science and Engineering (SCOPE)
-                         B.Tech Computer Vision Course Project
-                               Flipped Course Evaluation
+                                 VIT BHOPAL UNIVERSITY
+                 School of Computing Science and Engineering (SCSE)
+                        B.Tech Computer Vision Course Project
+                              Flipped Course Evaluation
 ========================================================================================
 
 PROJECT TITLE:
@@ -19,9 +19,10 @@ Rotation Tracking on NASA SDO/HMI Continuum Imagery
 
 ACADEMIC YEAR:          2025–2026
 COURSE TITLE:           Computer Vision (CSE4019 / ECE3002)
-STUDENT NAME:           Tribhuvan (Project Lead & Author)
+STUDENT NAME:           Tribhuwan Singh (Project Lead & Author)
+REGISTRATION ID:        24BAI10358
 PROGRAMME:              Bachelor of Technology (B.Tech)
-INSTITUTION:            Vellore Institute of Technology (VIT)
+INSTITUTION:            VIT Bhopal University
 SYSTEM VERSION:         1.0.0 (Production / Submission Release)
 DATE OF SUBMISSION:     September 2026
 REPOSITORY URL:         https://github.com/tribhu05/SolarVision.git

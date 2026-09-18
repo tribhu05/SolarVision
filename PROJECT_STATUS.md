@@ -1,7 +1,8 @@
 # SolarVision: Senior Engineering Project Status Report
 
 **Project**: SolarVision (Automated Solar Active Region Detection and Tracking)  
-**Academic Target**: VIT B.Tech Computer Vision Capstone Submission  
+**Academic Target**: VIT Bhopal University B.Tech Computer Vision Capstone Submission  
+**Student Name**: Tribhuwan Singh | **Registration ID**: 24BAI10358  
 **Lead Engineer Review Date**: September 17, 2026  
 **Overall Readiness Status**: **100% PRODUCTION / SUBMISSION READY**
 
