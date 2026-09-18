@@ -24,7 +24,7 @@ PROGRAMME:              Bachelor of Technology (B.Tech)
 INSTITUTION:            Vellore Institute of Technology (VIT)
 SYSTEM VERSION:         1.0.0 (Production / Submission Release)
 DATE OF SUBMISSION:     September 2026
-REPOSITORY URL:         https://github.com/tribh/SolarVision
+REPOSITORY URL:         https://github.com/tribhu05/SolarVision.git
 ========================================================================================
 ```
 

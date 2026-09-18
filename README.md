@@ -188,8 +188,8 @@ charming-darwin/
 
 ### 2. Setup Environment
 ```bash
-git clone <repo_url>
-cd charming-darwin
+git clone https://github.com/tribhu05/SolarVision.git
+cd SolarVision
 pip install -r requirements.txt
 ```
 
