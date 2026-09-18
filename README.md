@@ -26,6 +26,22 @@ Developed for the **VIT B.Tech Computer Vision Course Project**.
 
 ---
 
+## ℹ️ About the Project
+
+**SolarVision** is an autonomous, physics-informed Computer Vision pipeline and interactive analytics dashboard engineered for solar active region (sunspot) segmentation, Stonyhurst heliographic projection, morphological classification, and kinematic tracking on full-disk solar continuum imagery from NASA's Solar Dynamics Observatory (SDO/HMI Fe I 6173 Å).
+
+### Why SolarVision?
+Solar active regions are the photospheric engines behind extreme space weather phenomena—including solar flares, coronal mass ejections (CMEs), and geomagnetic storms—that jeopardize satellite communications, astronaut safety, and continental electrical grids. SolarVision replaces subjective manual cataloging with an automated, deterministic computer vision system that:
+- Localizes the solar disk with sub-pixel precision.
+- Normalizes optical limb darkening using empirical radiative transfer ($u=0.56, v=0.20$).
+- Hierarchically segments umbral cores and penumbrae via dual-level adaptive thresholding.
+- Re-projects planar detector coordinates into physical Stonyhurst heliographic coordinates $(B, L)$ and foreshortening-corrected physical areas (Millionths of a Solar Hemisphere).
+- Performs deterministic Modified Zurich / McIntosh classification (Classes A through H) with auditable decision logs.
+- Kinematically tracks active regions across multi-day sequences using the Snodgrass (1984) differential rotation relation.
+- Persists all observations in an ACID-compliant relational SQLite catalog (`solarvision.db`).
+
+---
+
 ## 🌟 Key Features
 
 1. **Classical Computer Vision Preprocessing Pipeline**:
